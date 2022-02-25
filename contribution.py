@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
-from sklearn.feature_selection import chi2,f_classif
+from sklearn.feature_selection import chi2, f_classif
 import csv
 
 csv_file = open('parameters.csv', 'r')
@@ -58,6 +58,4 @@ for index in range(0, len(f_score)):
     f_score[index] /= sums
     # 此种百分比控制输出需掌握
     print(f'{parameters[index]}: {100*f_score[index]:.2f}% ')
-    if index == (len(f_score)-1):
-        print('\n')
 
