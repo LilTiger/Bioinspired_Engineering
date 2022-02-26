@@ -33,7 +33,6 @@ print(clf.decision_function([[0, 1, 0, 1, 2, 72]]))
 print(clf.predict_proba([[0, 1, 0, 1, 2, 72]]))
 print(clf.predict([[0, 1, 0, 1, 2, 72]]))
 
-
 csv_data = pd.read_csv("parameters.csv")
 # 相关性计算(排除第一列 ref的影响 ref的作用仅仅是对比文献提取数据的准确性)
 # 注意 drop操作之后返回了新的对象 如果没有令新的变量等于drop这一操作
