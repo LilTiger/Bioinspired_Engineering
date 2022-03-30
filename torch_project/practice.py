@@ -1,3 +1,5 @@
+# 卷积计算公式:
+# N = （W-K+2P）/ S +1
 import torch
 import os
 from PIL import Image
