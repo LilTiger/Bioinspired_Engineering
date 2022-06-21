@@ -282,11 +282,11 @@ def SingleStep():
 
     stepCount += 1
     timeNow = stepCount * deltaT  # 模拟运行的时间=步数x步长
-    LeapfrogStep(1)  # 求解运动方程积分
+    LeapfrogStep(1)  # 求解运动方程积分(由加速度算速度，由速度算位置）
     ApplyBoundaryCond()  # 应用周期性边界条件
     ComputeForces()  # 计算原间相互作用力
     LeapfrogStep(2)  # 坐标和速度的积分
-    EvalProps()  # 计算系统属性值（速度，，速度平方和，总能量，动能，压力）
+    EvalProps()  # 计算系统属性值（速度，速度平方和，总能量，动能，压力）
     AccumProps(1)  # 系统属性值求和
 
     # 每一百步统计系统的属性值（0,100,200,300,400,500），可以设置stepAvg的值进行自定义

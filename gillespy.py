@@ -38,7 +38,7 @@ results.plot()
 for index in range(0, 10):
     trajectory = results[index]
     plt.plot(trajectory['time'], trajectory['monomer'], 'r')
-    plt.plot(trajectory['time'], trajectory['dimer'],   'b')
+    plt.plot(trajectory['time'], trajectory['dimer'], 'b')
 
 plt.xlabel('Time(s)')
 plt.ylabel('Number of Molecules')
