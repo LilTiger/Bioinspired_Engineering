@@ -50,7 +50,6 @@ if __name__ == "__main__":
     dt = 0.25  # 每进行一需要0.25秒
     stoptime = 15000.0  # 一共有4000秒模拟时间
 
-
     t, A, B = initial_conditions(width)
 
     nframes = 1
