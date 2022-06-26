@@ -1,4 +1,5 @@
 # 此代码用来去除作者-机构列中 每个作者名中间多出的逗号
+# 学习从源文件修改特定列数据后再写入到源/新文件的方法
 # 多看注释
 import csv
 import pandas as pd
@@ -25,7 +26,8 @@ with open(filename, encoding='utf-8-sig') as csvfile:
                         row[index] = new
                         print(row[index])
             # 将去掉逗号的加入新数据列
-        data.append(row)  # 选择某一列加入到data数组中
+        data.append(row)  # 也可以指定某几列加入到data数组中，形如row[5:]
 
+    # data包含清洗好的作者-机构列和源文件中保持不变的所有列，据此创建dataframe并写入文件
     df = pd.DataFrame(data)
-    df.to_csv('scopus - heart1.csv', encoding='utf-8-sig')
+    df.to_csv('scopus - heart.csv', encoding='utf-8-sig')
