@@ -4,7 +4,7 @@
 import csv
 import pandas as pd
 
-filename = 'scopus - heart.csv'
+filename = 'scopus.csv'
 data = []
 # encoding方式为utf-8-sig可以避免dataframe在数据开头加入的\ufeff标识
 with open(filename, encoding='utf-8-sig') as csvfile:
