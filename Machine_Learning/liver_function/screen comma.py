@@ -30,4 +30,4 @@ with open(filename, encoding='utf-8-sig') as csvfile:
 
     # data包含清洗好的作者-机构列和源文件中保持不变的所有列，据此创建dataframe并写入文件
     df = pd.DataFrame(data)
-    df.to_csv('scopus - heart.csv', encoding='utf-8-sig')
+    df.to_csv('scopus - temp.csv', encoding='utf-8-sig')
