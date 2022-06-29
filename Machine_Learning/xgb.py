@@ -1,5 +1,5 @@
 # 待数据量上去之后再使用此xgboost模型 注意此模型在使用时可以有缺失数据
-# 每次输出的importance不同的原因是：随机划分了测试集和验证集 如果不包含测试集 那么每次输出的importance相同
+# 每次输出的importance不同的原因是：随机划分了测试集和验证集 解决方法是在train_test_split中指定random_state 使每次划分的训练集和测试集相同
 # 此模型中的importance同样计算f_score
 import xgboost as xgb
 import numpy as np
@@ -62,7 +62,7 @@ def init_train_data(df):
     # xgboost不需要变量变为哑变量
 
     test_percent = 0.3
-    x_train, x_test, y_train, y_test = train_test_split(train_x, train_y, test_size=test_percent)
+    x_train, x_test, y_train, y_test = train_test_split(train_x, train_y, test_size=test_percent, random_state=100)
 
     return x_train, x_test, y_train, y_test
 

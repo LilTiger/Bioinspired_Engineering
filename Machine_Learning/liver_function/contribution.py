@@ -18,7 +18,7 @@ data = pd.read_csv(csv_file)
 
 # 指明csv文件中标签和特征列名即可
 label_name = 'Day 7 Albumin'
-feature_name = ['Cell Type', 'Cell Seeding', 'Scaffold Type', 'Modification', 'Concentration', 'Pore Size', 'Thick',
+feature_name = ['Day', 'Cell Type', 'Cell Seeding', 'Scaffold Type', 'Modification', 'Concentration', 'Pore Size', 'Thick',
                 'Diameter', 'Porosity', 'Static/dynamic']
 x_label = data[feature_name]
 y_label = data[label_name]
@@ -34,7 +34,7 @@ x_label_norm = pd.DataFrame(scaler.fit_transform(x_label), columns=columns)
 
 # 此处可更换具体的拟合模型 xgb库可直接绘制feature_importance图像
 # 通过控制n_estimator来控制F_score的范围
-clf = xgb.XGBRegressor(max_depth=10, learning_rate=0.1, n_estimators=100,reg_alpha=0.005, subsample=0.8,
+clf = xgb.XGBRegressor(max_depth=10, learning_rate=0.1, n_estimators=1000, reg_alpha=0.005, subsample=0.8,
                        gamma=0, colsample_bylevel=0.8)
 
 # 习惯将数据转化为 float 格式
