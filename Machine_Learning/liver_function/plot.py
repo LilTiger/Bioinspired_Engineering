@@ -10,7 +10,7 @@ mglearn.discrete_scatter(X[:, 0], X[:, 1], y)
 plt.legend(['Albumin secreted on day 1', 'Albumin not secreted on day 1'], loc=4)
 plt.xlabel('Cell Type')
 plt.ylabel('Scaffold Type')
-plt.savefig('1.tif')
+# plt.savefig('1.tif')
 plt.show()
 
 

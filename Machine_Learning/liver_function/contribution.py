@@ -1,4 +1,5 @@
-# 使用说明：可先使用normalization.py将数据正则化为parameters_norm.csv文件【线性回归不需要】
+# 注意数据缺失值fillna的处理方式 对于xgboost来说 也可以对缺失值不做处理
+# 数据归一化可在数据预处理阶段直接归一 无需单独开一个文件normalization 且归一化只需对自变量进行
 # 注意：LogisticRegression()用来分类 LinearRegression()用来回归
 # 特别注意：f_classif 和 f_regression 只能用来寻找变量之间的线性相关关系
 import numpy as np
@@ -57,7 +58,7 @@ plt.show()
 # print(clf.predict(ys))
 
 
-# 以下开始相关性计算(排除第一列 ref的影响 ref的作用仅仅是对比文献提取数据的准确性)
+# 以下开始计算 线性 相关性
 csv_data = pd.read_csv('evaluation.csv', encoding='ISO-8859-1')
 # # 若是计算parameters_norm.csv 注释掉下面两行即可
 # csv_data.drop(['ref'], axis=1, inplace=True)
@@ -73,9 +74,7 @@ print('p_score: ', p_score)
 # 保存原数组sum 以免index的迭代中 sum会不断更新 造成不准确
 sums = f_score.sum()
 print(f'contribution rates of {x_label.shape[1]} features are:')
-# # 此处需与feature_name一致
-# parameters = ['Culture serum', 'Stretching direction', 'Cylic or static stretching', 'Continuous or intermittent',
-#               'Amplitude', 'Effective stretching duration']
+
 for index in range(0, len(f_score)):
     f_score[index] /= sums
     # 此种百分比控制输出需掌握
