@@ -1,3 +1,4 @@
+# 此方法可获取图片像素点的坐标
 import cv2
 import numpy as np
 img = cv2.imread('1.tif')

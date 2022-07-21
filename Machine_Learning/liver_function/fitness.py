@@ -13,8 +13,10 @@ data = pd.read_csv(csv_file)
 label_name = 'Albumin'
 feature_name = ['Day', 'Cell Type', 'Cell Seeding', 'Scaffold Type', 'Modification', 'Concentration', 'Pore Size', 'Thick',
                 'Diameter', 'Porosity', 'Static/dynamic']
-x_label = data[feature_name]
-y_label = pd.DataFrame(data[label_name])
+# copy()方法创建df的深副本df_deep = df.copy([默认]deep=True) 【可以理解为 创新新的DataFrame并赋值 二者不共享内存空间】
+# 即df2重新开辟内存空间存放df_deep的数据 df与df_deep所指向数据的地址不一样而仅对应位置元素一样 故其中一个变量名中的元素发生变化，另一个不会随之发生变化
+x_label = data[feature_name].copy()
+y_label = pd.DataFrame(data[label_name]).copy()
 # 新建预测变量dataframe 用于从原始数据中drop有原始数据的行
 x_label_pred = x_label.copy()
 y_label_pred = y_label.copy()
@@ -55,11 +57,14 @@ clf.fit(x_label_norm, y_label)
 pred_list = clf.predict(x_label_pred_norm)
 print(pred_list)
 
+# 丢弃x/y_label_pred中的索引 重排索引
+# 解释一下为什么不必重排原始数据的索引 原始数据直接提取自原DataFrame 索引和数据一一对应 后续直接concat自变量和因变量即可
+# 而预测数据中需将预测的值输入到y_label_pred 输出结果保存到一个索引从0开始的pred_list 为了使y_label_pred和pred_list索引对应 需要重排
+y_label_pred.reset_index(drop=True, inplace=True)
+x_label_pred.reset_index(drop=True, inplace=True)
 # 填入预测的数据值
-for index, row in y_label_pred.iterrows():
-    for idb in range(pred_list.__len__()):
-        # pred_list的列表索引从0开始 y_label_pred的索引随机(从原始表格中删除获得) 但两者数量相同且一一对应 可用不同索引进行赋值
-        y_label_pred.loc[index, 'Albumin'] = pred_list[idb]
+for index in range(pred_list.__len__()):
+    y_label_pred.loc[index, 'Albumin'] = pred_list[index]
 
 # 拼接自变量和因变量 形成完整的原始数据（预测数据）行
 raw_data = pd.concat([y_label, x_label], axis=1)
@@ -69,4 +74,5 @@ pred_data.insert(loc=0, column='Source', value='predicted')  # 备注数据来�
 # 将预测后的数据拼接到原始数据 形成补点后的dataframe
 final = pd.concat([raw_data, pred_data], axis=0)
 
+final.reset_index(drop=True, inplace=True)  # 重排原始+预测序列 得到完整的DataFrame
 # final.to_csv('final.csv')
