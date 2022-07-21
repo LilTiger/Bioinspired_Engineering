@@ -1,3 +1,4 @@
+# 使用xgboost和f_class(f_regression)计算变量的贡献度【特征重要性】
 # 注意数据缺失值fillna的处理方式 对于xgboost来说 也可以对缺失值不做处理
 # 数据归一化可在数据预处理阶段直接归一 无需单独开一个文件normalization 且归一化只需对自变量进行
 # 注意：LogisticRegression()用来分类 LinearRegression()用来回归
@@ -18,16 +19,18 @@ csv_file = open('evaluation.csv', encoding='ISO-8859-1')
 data = pd.read_csv(csv_file)
 
 # 指明csv文件中标签和特征列名即可
-label_name = 'Day 7 Albumin'
+# 计算变量重要性时不需要取天数这一变量~
+label_name = 'Albumin'
 feature_name = ['Day', 'Cell Type', 'Cell Seeding', 'Scaffold Type', 'Modification', 'Concentration', 'Pore Size', 'Thick',
                 'Diameter', 'Porosity', 'Static/dynamic']
 x_label = data[feature_name]
 y_label = data[label_name]
 
 # 对缺失数据 x_label 而不是整个data[evaluation表格中包含了很多中文数据] 进行插值处理
+# 无论是否进行 主动插值 贡献率不变
 # fillna中 pad为利用前面的数据填充 df.mode()/median()/mean()为众数、中位数、平均值填充
 # x_label = x_label.interpolate(method='pad')
-x_label = x_label.fillna(x_label.median())
+# x_label = x_label.fillna(x_label.median())
 # 数据归一化处理
 scaler = StandardScaler()
 columns = x_label.columns
