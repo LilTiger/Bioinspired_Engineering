@@ -13,7 +13,7 @@ data = pd.read_csv(csv_file)
 label_name = 'Albumin'
 feature_name = ['Day', 'Cell Type', 'Cell Seeding', 'Scaffold Type', 'Modification', 'Concentration', 'Pore Size', 'Thick',
                 'Diameter', 'Porosity', 'Static/dynamic']
-# copy()方法创建df的深副本df_deep = df.copy([默认]deep=True) 【可以理解为 创新新的DataFrame并赋值 二者不共享内存空间】
+# copy()方法创建df的深副本df_deep = df.copy([默认]deep=True) 【可以理解为 创建新的DataFrame并赋值 二者不共享内存空间】
 # 即df2重新开辟内存空间存放df_deep的数据 df与df_deep所指向数据的地址不一样而仅对应位置元素一样 故其中一个变量名中的元素发生变化，另一个不会随之发生变化
 x_label = data[feature_name].copy()
 y_label = pd.DataFrame(data[label_name]).copy()
@@ -25,7 +25,7 @@ y_label_pred = y_label.copy()
 # 遍历dataframe的每一行
 for index in range(0, len(y_label)):
     # 判断某行对应的Albumin是否为空 为空则为预测数据
-    # .loc为按标签提取， .iloc为按位置索引提取 (第一个参数为行 第二个参数为列) 有 data.loc[:, 'Albumin'] = data.iloc[:, 0]
+    # .loc为按标签提取 .iloc为按位置索引提取 (第一个参数为行 第二个参数为列) 此处有 data.loc[:, 'Albumin'] = data.iloc[:, 0]
     if pd.isnull(y_label.loc[index, 'Albumin']):
         y_label.drop(index=index, inplace=True)
         # 自变量标签同样drop掉 预测数据行 即可
@@ -44,17 +44,18 @@ scaler = StandardScaler()
 columns = x_label.columns
 x_label_norm = pd.DataFrame(scaler.fit_transform(x_label), columns=columns)
 x_label_pred_norm = pd.DataFrame(scaler.fit_transform(x_label_pred), columns=columns)
-# 此处可更换具体的拟合模型 xgb库可直接绘制feature_importance图像
+
 # 通过控制n_estimator来控制F_score的范围
 clf = xgb.XGBRegressor(max_depth=10, learning_rate=0.1, n_estimators=1000, reg_alpha=0.005, subsample=0.8,
                        gamma=0, colsample_bylevel=0.8)
-
-# 习惯将数据转化为 float 格式
-x = np.array(x_label).astype(np.float64)
-y = np.array(y_label).astype(np.float64)
+# # 习惯将数据转化为 float 格式
+# x = np.array(x_label).astype(np.float64)
+# y = np.array(y_label).astype(np.float64)
 
 clf.fit(x_label_norm, y_label)
 pred_list = clf.predict(x_label_pred_norm)
+# 一行语句包含对整个list的循环保留特定小数位数操作
+# pred_list = [round(i, 2) for i in pred_list]
 print(pred_list)
 
 # 丢弃x/y_label_pred中的索引 重排索引
@@ -75,4 +76,5 @@ pred_data.insert(loc=0, column='Source', value='predicted')  # 备注数据来�
 final = pd.concat([raw_data, pred_data], axis=0)
 
 final.reset_index(drop=True, inplace=True)  # 重排原始+预测序列 得到完整的DataFrame
-# final.to_csv('final.csv')
+final.sort_values(by='Day', ascending=True, inplace=True)  # 按照Day排序
+# final.to_csv('final.csv', index=False)
