@@ -90,7 +90,7 @@ def model_fit_regressor(x_train, x_test, y_train, y_test):
     scores = cross_val_score(model, x_train, y_train, cv=5)
     print("Mean cross-validation score: %.2f" % scores.mean())
 
-    kfold = KFold(n_splits=10, shuffle=True)
+    kfold = KFold(n_splits=10, shuffle=True, random_state=100)
     kf_cv_scores = cross_val_score(model, x_train, y_train, cv=kfold)
     print("K-fold CV average score: %.2f" % kf_cv_scores.mean())
 

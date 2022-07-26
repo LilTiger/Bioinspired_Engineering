@@ -8,7 +8,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.svm import SVC
-from sklearn.ensemble import GradientBoostingRegressor, RandomForestClassifier
 from sklearn.feature_selection import f_classif, chi2, f_regression
 import csv
 import xgboost as xgb
