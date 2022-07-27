@@ -1,3 +1,5 @@
+# **代码未完成（feature列和xgboost的参数未最终确定）**
+
 # 使用xgboost和f_class(f_regression)计算变量的贡献度【特征重要性】
 # 注意数据缺失值fillna的处理方式 对于xgboost来说 也可以对缺失值不做处理
 # 数据归一化可在数据预处理阶段直接归一 无需单独开一个文件normalization 且归一化只需对自变量进行
@@ -6,47 +8,72 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.linear_model import LogisticRegression, LinearRegression
-from sklearn.svm import SVC
-from sklearn.feature_selection import f_classif, chi2, f_regression
-import csv
 import xgboost as xgb
-from xgboost import plot_importance
 from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split, cross_val_score, KFold
+from warnings import simplefilter
+simplefilter(action='ignore', category=FutureWarning)
+from sklearn.feature_selection import f_regression
 
 csv_file = open('evaluation.csv', encoding='ISO-8859-1')
 data = pd.read_csv(csv_file)
 
-# 指明csv文件中标签和特征列名即可
-# 计算变量重要性时不需要取天数这一变量~
 label_name = 'Albumin'
 feature_name = ['Day', 'Cell Type', 'Cell Seeding', 'Scaffold Type', 'Modification', 'Concentration', 'Pore Size', 'Thick',
                 'Diameter', 'Porosity', 'Static/dynamic']
-x_label = data[feature_name]
-y_label = data[label_name]
+# copy()方法创建df的深副本df_deep = df.copy([默认]deep=True) 【可以理解为 创建新的DataFrame并赋值 二者不共享内存空间】
+# 即df2重新开辟内存空间存放df_deep的数据 df与df_deep所指向数据的地址不一样而仅对应位置元素一样 故其中一个变量名中的元素发生变化，另一个不会随之发生变化
+x_label = data[feature_name].copy()
+y_label = pd.DataFrame(data[label_name]).copy()
+# 新建预测变量dataframe 用于从原始数据中drop有原始数据的行
+x_label_pred = x_label.copy()
+y_label_pred = y_label.copy()
 
-# 对缺失数据 x_label 而不是整个data[evaluation表格中包含了很多中文数据] 进行插值处理
-# 无论是否进行 主动插值 贡献率不变
+# 当原始数据中包含混杂的原始数据（文章给出）和预测数据（模型预测）时，下面的函数用于提取真实数据；否则只保留真实数据
+# 遍历dataframe的每一行
+for index in range(0, len(y_label)):
+    # 判断某行对应的Albumin是否为空 为空则为预测数据
+    # .loc为按标签提取 .iloc为按位置索引提取 (第一个参数为行 第二个参数为列) 此处有 data.loc[:, 'Albumin'] = data.iloc[:, 0]
+    if pd.isnull(y_label.loc[index, 'Albumin']):
+        y_label.drop(index=index, inplace=True)
+        # 自变量标签同样drop掉 预测数据行 即可
+        x_label.drop(index=index, inplace=True)
+    # 提取预测数据行
+    else:
+        y_label_pred.drop(index=index, inplace=True)
+        x_label_pred.drop(index=index, inplace=True)
+
 # fillna中 pad为利用前面的数据填充 df.mode()/median()/mean()为众数、中位数、平均值填充
 # x_label = x_label.interpolate(method='pad')
 # x_label = x_label.fillna(x_label.median())
 # 数据归一化处理
 scaler = StandardScaler()
-columns = x_label.columns
+columns = x_label.columns  # x_label 和 x_pred的列变量相同
 x_label_norm = pd.DataFrame(scaler.fit_transform(x_label), columns=columns)
+x_label_pred_norm = pd.DataFrame(scaler.fit_transform(x_label_pred), columns=columns)
 
-# 此处可更换具体的拟合模型 xgb库可直接绘制feature_importance图像
+
+# 此处对原始csv表格分割后且标准化后的数据 分割训练和测试集并交叉验证
+# 对划分之后的DataFrame划分训练集和测试集【注某行对应的功能指标为空的行为最终数据填充行 而不是测试集】
+test_percent = 0.3
+# 注意分割训练/测试集时要对norm后的x_label进行操作
+x_train, x_test, y_train, y_test = train_test_split(x_label_norm, y_label, test_size=test_percent, random_state=412)
+
 # 通过控制n_estimator来控制F_score的范围
-clf = xgb.XGBRegressor(max_depth=10, learning_rate=0.1, n_estimators=1000, reg_alpha=0.005, subsample=0.8,
-                       gamma=0, colsample_bylevel=0.8)
-
-# 习惯将数据转化为 float 格式
-x = np.array(x_label).astype(np.float64)
-y = np.array(y_label).astype(np.float64)
-# 若要使输出的importance保留标签 注意x_label和y_label需要是dataframe的形式
-clf.fit(x_label_norm, y_label)
-plot_importance(clf)
-# 以下语句针对标签过长显示不全的问题
+train_data = xgb.DMatrix(x_train, y_train)
+params = {
+    'eta': 0.1,
+    'objective': 'reg:gamma',
+    'lambda': 0.005,
+    'gamma': 0.005,
+    'max_depth': 8,
+    'min_child_weight': 3,
+    'subsample': 0.7,
+    # 'colsample_bytree': 0.7,
+}
+num_boost_rounds = 50
+xgboost = xgb.train(params=params, dtrain=train_data, num_boost_round=num_boost_rounds)
+xgb.plot_importance(xgboost)
 plt.tight_layout()
 plt.show()
 
@@ -69,6 +96,8 @@ csv_data = pd.read_csv('evaluation.csv', encoding='ISO-8859-1')
 corr = csv_data.corr()
 # corr.to_csv('correlation.csv')
 # 计算每个自变量的 f_score p_score 前者越大/后者越小 那么与因变量的关系越大 即该自变量越重要
+x = np.array(x_label).astype(np.float64)
+y = np.array(y_label).astype(np.float64)
 f_score, p_score = f_regression(x, y)
 print('f score: ', f_score)
 print('p_score: ', p_score)
