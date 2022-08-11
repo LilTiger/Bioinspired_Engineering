@@ -73,8 +73,11 @@ params = {
 }
 num_boost_rounds = 50
 xgboost = xgb.train(params=params, dtrain=train_data, num_boost_round=num_boost_rounds)
-xgb.plot_importance(xgboost)
+# 对于分类变量，由于天生能用于分割的点就比较少，很容易被"weight"指标所忽略；故使用gain最可以代表特征的重要性
+xgb.plot_importance(xgboost, importance_type='gain')
 plt.tight_layout()
+# 调整左边距以解决features显示不全的问题
+plt.gcf().subplots_adjust(left=0.22)
 plt.show()
 
 # decision_function返回结果的数值表示模型预测样本属于某个类别的可信度

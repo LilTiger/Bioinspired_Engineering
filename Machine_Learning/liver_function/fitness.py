@@ -57,7 +57,6 @@ test_percent = 0.3
 # 注意分割训练/测试集时要对norm后的x_label进行操作
 x_train, x_test, y_train, y_test = train_test_split(x_label_norm, y_label, test_size=test_percent, random_state=412)
 
-# 通过控制n_estimator来控制F_score的范围
 train_data = xgb.DMatrix(x_train, y_train)
 params = {
     'eta': 0.01,
@@ -71,8 +70,11 @@ params = {
 }
 num_boost_rounds = 500
 xgboost = xgb.train(params=params, dtrain=train_data, num_boost_round=num_boost_rounds)
-# xgb.plot_importance(xgboost)
+# 对于分类变量 由于天生能用于分割的点就比较少 很容易被"weight"指标所忽略 故使用gain最可以代表特征的重要性
+xgb.plot_importance(xgboost, importance_type='gain')
 # plt.tight_layout()
+# 调整边距以解决features显示不全的问题
+# plt.gcf().subplots_adjust(left=0.22)
 # plt.show()
 
 
@@ -106,7 +108,7 @@ joblib.dump(xgboost, 'xgb.pkl')  # 保存模型
 
 # 以下对测试后的模型进行天数预测
 # 注意 最好在测试准确率较高时真正输出预测数据
-if r2 > 0.6:
+if r2 > 0.7:
     xgboost = joblib.load('xgb.pkl')
     # 当有新数据需要增量学习时 使用以下指令【注意eta学习率需要酌情变小 类似于微调】
     # model = xgb.train(params=params, dtrain=test_data, num_boost_round=num_boost_rounds, xgb_model=xgboost)
@@ -137,7 +139,7 @@ if r2 > 0.6:
     # final.to_csv('final.csv', index=False)
 
 
-# 绘图调参 评价标准metrics='RMSE'
+# 绘图调参 评价标准metrics='RMSE' 其它标准可见xgb_note
 def parameters():
     fig, ax = plt.subplots(1)
     params1 = {
