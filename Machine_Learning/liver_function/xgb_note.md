@@ -1,7 +1,7 @@
 ## XGBoost有两种接口：
 
-原生接口，比如xgboost.train，xgboost.cv
-sklearn接口，比如xgboost.XGBClassifier，xgboost.XGBRegressor
+`原生接口，比如xgboost.train，xgboost.cv`
+`sklearn接口，比如xgboost.XGBClassifier，xgboost.XGBRegressor`
 两种接口有些许不同，比如原生接口的学习率参数是eta，sklearn接口的是learning_rate，原生接口要在train或cv函数中传入num_round作为基学习器个数
 而sklearn接口在定义模型时使用参数n_estimators。sklearn接口的形式与sklearn中的模型保持统一，方便sklearn用户学习
 

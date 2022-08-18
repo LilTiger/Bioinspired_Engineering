@@ -68,7 +68,7 @@ params = {
     # 'subsample': 0.8,
     # 'colsample_bytree': 0.8,
 }
-num_boost_rounds = 500
+num_boost_rounds = 552
 xgboost = xgb.train(params=params, dtrain=train_data, num_boost_round=num_boost_rounds)
 # 对于分类变量 由于天生能用于分割的点就比较少 很容易被"weight"指标所忽略 故使用gain最可以代表特征的重要性
 xgb.plot_importance(xgboost, importance_type='gain')
@@ -91,7 +91,7 @@ cv_score = xgb.cv(params=params, dtrain=train_data, num_boost_round=num_boost_ro
 
 # 以下开始模型准确性验证部分
 # 验证决定系数R平方/平均绝对值误差（MAE）/平均绝对百分比误差（MAPE）/均方误差（MSE）/均方根误差（RMSE）
-test_data = xgb.DMatrix(x_test, y_test)
+test_data = xgb.DMatrix(x_test)
 y_test_pred = xgboost.predict(test_data)
 r2 = r2_score(y_test, y_test_pred)
 print("R2 score: %.2f" % r2)
@@ -103,6 +103,9 @@ mse = mean_squared_error(y_test, y_test_pred)
 print("MSE: %.2f" % mse)
 print("RMSE: %.2f" % (mse ** (1 / 2.0)))
 # 模型完整存储了训练的参数 保存和读取模型对结果无任何影响
+# 输出模型测试集的实际值和预测值
+print('The predicted output of test set is:', np.array(y_test).T)
+print('The output of test set is:', y_test_pred)
 joblib.dump(xgboost, 'xgb.pkl')  # 保存模型
 
 
@@ -112,10 +115,11 @@ if r2 > 0.7:
     xgboost = joblib.load('xgb.pkl')
     # 当有新数据需要增量学习时 使用以下指令【注意eta学习率需要酌情变小 类似于微调】
     # model = xgb.train(params=params, dtrain=test_data, num_boost_round=num_boost_rounds, xgb_model=xgboost)
-    pred_list = np.array(xgboost.predict(test_data))
+    pred_data = xgb.DMatrix(x_label_pred_norm)
+    pred_list = np.array(xgboost.predict(pred_data))
     pred_list = np.around(pred_list, decimals=2)  # 数组元素保留两位小数
     # pred_list = [round(i, 2) for i in pred_list]  # 一行语句包含对整个list的循环保留特定小数位数操作
-    print(pred_list)
+    print('The predicted output of complementary data is:', pred_list)  # 验证模型实际预测能力需要
 
     # 丢弃x/y_label_pred中的索引 重排索引
     # 解释一下为什么不必重排原始数据的索引 原始数据直接提取自原DataFrame 索引和数据一一对应 后续直接concat自变量和因变量即可

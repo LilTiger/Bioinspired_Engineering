@@ -90,7 +90,7 @@ plt.show()
 # print(clf.predict(ys))
 
 
-# 以下开始计算 线性 相关性
+# 以下开始计算 *线性* 相关性
 csv_data = pd.read_csv('evaluation.csv', encoding='ISO-8859-1')
 # # 若是计算parameters_norm.csv 注释掉下面两行即可
 # csv_data.drop(['ref'], axis=1, inplace=True)
