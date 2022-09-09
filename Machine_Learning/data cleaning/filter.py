@@ -25,5 +25,5 @@ with open(filename, encoding='utf-8-sig') as csvfile:
         data.append(row)
 
     df = pd.DataFrame(data)
-    df.to_csv('scopus - filter.csv', encoding='utf-8-sig', header=None, index=None)  # 保存到csv文件时不保存行索引和列索引
+    df.to_csv('scopus - filter.csv', encoding='utf-8-sig', header=False, index=False)  # 保存到csv文件时不保存行索引和列索引
 
