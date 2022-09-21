@@ -247,5 +247,34 @@
   <script src="js/jquery-3.6.0.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script type="text/javascript">
+     this.axios.get('https://kd.nsfc.gov.cn/api/common/hotKeywordData')
+        .then(res=>{
+            // 接口数据
+                console.log(res)
+                let testData = res.data.data[0].keywords;
+                let dom = document.getElementById('box');
+                let list = '';
+
+                for (let i=0; i<testData.length; i++){
+                    list+='<p>'+testData[i].keyword+'<span>'+testData[i].num+'</span></p >'
+                }
+                dom.innerHTML = list;
+        })
+    .catch(error=>{
+        // 连接接口失败抛出错误
+    })
+    // let parameter = { param: '' }
+    // axios.get('http://www.dviz.cn/BiologicalStemCell/statistics/cell',
+    //     { params: parameter})
+    //     .then(res=>{
+    //         // 接口数据
+    //         console.log(res)
+    //     })
+    // .catch(error=>{
+    //     // 连接接口失败抛出错误
+    // })
+</script>
   </body>
 </html>

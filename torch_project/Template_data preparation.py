@@ -74,7 +74,7 @@ transform_method = transforms.Compose([
 # 实例化训练集/测试集对象 此为真正制造train/test数据集的操作
 train_data = datasets.ImageFolder(root+'/train/', transform=transform_method)
 test_data = datasets.ImageFolder(root+'/test/', transform=transform_method)
-# 使用DataLoader封装数据集 可以mini_batch形式输入 可shuffle 可使用多线程加速
+# 使用DataLoader封装数据集 可以mini_batch形式输入 可 shuffle 可使用多线程加速
 # 目的是与 深度学习 方法进行关联
 trainloader = DataLoader(dataset=train_data, batch_size=6, shuffle=True, num_workers=4)
 textloader = DataLoader(dataset=test_data, batch_size=6, shuffle=True, num_workers=4)

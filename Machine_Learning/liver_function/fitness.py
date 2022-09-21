@@ -68,7 +68,7 @@ params = {
     # 'subsample': 0.8,
     # 'colsample_bytree': 0.8,
 }
-num_boost_rounds = 552
+num_boost_rounds = 1000
 xgboost = xgb.train(params=params, dtrain=train_data, num_boost_round=num_boost_rounds)
 # 对于分类变量 由于天生能用于分割的点就比较少 很容易被"weight"指标所忽略 故使用gain最可以代表特征的重要性
 xgb.plot_importance(xgboost, importance_type='gain')
@@ -104,14 +104,14 @@ print("MSE: %.2f" % mse)
 print("RMSE: %.2f" % (mse ** (1 / 2.0)))
 # 模型完整存储了训练的参数 保存和读取模型对结果无任何影响
 # 输出模型测试集的实际值和预测值
-print('The predicted output of test set is:', np.array(y_test).T)
-print('The output of test set is:', y_test_pred)
+print('The true label of test set is:', np.array(y_test).T)
+print('The predicted output of test set is:', y_test_pred)
 joblib.dump(xgboost, 'xgb.pkl')  # 保存模型
 
 
 # 以下对测试后的模型进行天数预测
 # 注意 最好在测试准确率较高时真正输出预测数据
-if r2 > 0.7:
+if r2 > 0.5:
     xgboost = joblib.load('xgb.pkl')
     # 当有新数据需要增量学习时 使用以下指令【注意eta学习率需要酌情变小 类似于微调】
     # model = xgb.train(params=params, dtrain=test_data, num_boost_round=num_boost_rounds, xgb_model=xgboost)
@@ -140,7 +140,10 @@ if r2 > 0.7:
 
     final.reset_index(drop=True, inplace=True)  # 重排原始+预测序列 得到完整的DataFrame
     final.sort_values(by='Day', ascending=True, inplace=True)  # 按照Day排序
-    # final.to_csv('final.csv', index=False)
+    finals = final.copy()
+    for index in range(12, 16):
+        finals.loc[index,'Albumin'] = None
+    final.to_csv('final.csv', index=False)
 
 
 # 绘图调参 评价标准metrics='RMSE' 其它标准可见xgb_note

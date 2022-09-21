@@ -543,10 +543,10 @@ list_sheet_names = ['总体概况', '子系统概况', '模块概况', '单元�
 writer = pd.ExcelWriter('Data_Analysis_Before Qin.xlsx', engine='xlsxwriter')
 
 # Write each dataframe to a different worksheet.
-"Jingmin: 生成的excel表格如果不想保留第一列之前多余的计数列（即行索引） 使用index=False" \
-    "如果不想保留每列的列名（即列索引 参考486~488设置的column的名称） 使用header=False"
 for df, sheet in zip(list_df_names, list_sheet_names):
-    df.to_excel(writer, sheet_name=sheet)
+    "Jingmin: 生成的excel表格如果不想保留第一列之前多余的计数列（即行索引） 添加参数index=False" \
+        "如果不想保留每列的列名（即列索引 参考486~488设置的column的名称） 添加参数header=False"
+    df.to_excel(writer, sheet_name=sheet, index=False)
 
 # Close the Pandas Excel writer and output the Excel file.
 writer.save()
