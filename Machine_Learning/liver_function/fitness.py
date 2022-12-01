@@ -4,6 +4,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.legend import Legend
 import xgboost as xgb
 from sklearn.metrics import mean_squared_error, mean_absolute_error, mean_absolute_percentage_error, r2_score
 from sklearn.preprocessing import StandardScaler
@@ -13,13 +14,76 @@ import joblib
 from warnings import simplefilter
 simplefilter(action='ignore', category=FutureWarning)
 
+# 一些绘图函数
+# 绘图调参 评价标准metrics='RMSE' 其它标准可见xgb_note
+def parameters():
+    fig, ax = plt.subplots(1)
+    params1 = {
+        'eta': 0.1,
+        'objective': 'reg:gamma',
+        'lambda': 0.005,
+        'gamma': 0,
+        'max_depth': 8,
+        'min_child_weight': 3,
+        # 'subsample': 0.7,
+        # 'colsample_bytree': 0.7,
+    }
+    params2 = {
+        'eta': 0.1,
+        'objective': 'reg:gamma',
+        'lambda': 0.005,
+        'gamma': 0,
+        'max_depth': 8,
+        'min_child_weight': 3,
+        # 'subsample': 0.7,
+        # 'colsample_bytree': 0.7,
+    }
+    cv_test1 = xgb.cv(params=params1, dtrain=train_data, num_boost_round=num_boost_rounds, folds=k_fold, metrics='rmse')
+    cv_test2 = xgb.cv(params=params2, dtrain=train_data, num_boost_round=600, folds=k_fold, metrics='rmse')
+    ax.plot(cv_test1.iloc[:, 0], c='red', label='train')
+    ax.plot(cv_test1.iloc[:, 2], c='blue', label='test')
+    ax.plot(cv_test2.iloc[:, 0], c='orange', label='train-modi')
+    ax.plot(cv_test2.iloc[:, 2], c='green', label='test-modi')
+
+    ax.legend()
+    plt.show()
+
+
+# 将原始和预测数据绘制折线图 此处需根据不同文章的Feature作更改
+def plot():
+    x = np.linspace(2, 14, 13)
+    y1 = final.loc[final['Feature'] == 'PLGA']['Albumin']
+    y2 = final.loc[final['Feature'] == 'PLGA-Chigh']['Albumin']
+    y3 = final.loc[final['Feature'] == 'PLGA-Clow']['Albumin']
+    y4 = final.loc[final['Feature'] == 'PLGA-Fhigh']['Albumin']
+    y5 = final.loc[final['Feature'] == 'PLGA-Flow']['Albumin']
+    plt.figure()
+    # 以下方法通过折线图在下 散点图（文章提供的真实数据点）在上的方式形成 真实+预测 拟合曲线
+    plt.plot(x, y1, marker='^', markerfacecolor='white', label='PLGA', zorder=1)  # 可以通过zorder设置不同曲线的优先级
+    plt.plot(x, y2, marker='^', markerfacecolor='white', label='Collagen-high', zorder=1)
+    plt.plot(x, y3, marker='^', markerfacecolor='white', label='Collagen-low')
+    plt.plot(x, y4, marker='^', markerfacecolor='white', label='Fibronectin-high')
+    plt.plot(x, y5, marker='^', markerfacecolor='white', label='Fivronectin-low')
+    plt.scatter([2, 7, 11, 14], [3, 10, 19, 18], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+    plt.scatter([2, 7, 11, 14], [5, 24, 32, 36], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+    plt.scatter([2, 7, 11, 14], [2, 6, 10, 17], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+    plt.scatter([2, 7, 11, 14], [3, 7, 12, 18], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+    plt.scatter([2, 7, 11, 14], [5, 12, 18, 24], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+
+    plt.title('Albumin Secretion Line Chart')
+    plt.xlabel('Day')
+    plt.ylabel('Albumin (μg/day/10^6 cells)')
+    plt.legend()
+    plt.savefig('line chart.svg', dpi=300)  # 用png可以无损压缩 jpg有损压缩
+    plt.show()
+
 
 csv_file = open('evaluation.csv', encoding='ISO-8859-1')
 data = pd.read_csv(csv_file)
 
 label_name = 'Albumin'
-feature_name = ['Day', 'Cell Type', 'Cell Seeding', 'Scaffold Type', 'Modification', 'Concentration', 'Pore Size', 'Thick',
-                'Diameter', 'Porosity', 'Static/dynamic']
+feature_name = ['Day', 'Cell Type', 'Cell Seeding', 'Scaffold Type', 'Modi-1', 'Concentration', 'Pore Size', 'Thick',
+                'Diameter', 'Porosity', 'Flow Rate']
 # copy()方法创建df的深副本df_deep = df.copy([默认]deep=True) 【可以理解为 创建新的DataFrame并赋值 二者不共享内存空间】
 # 即df2重新开辟内存空间存放df_deep的数据 df与df_deep所指向数据的地址不一样而仅对应位置元素一样 故其中一个变量名中的元素发生变化，另一个不会随之发生变化
 x_label = data[feature_name].copy()
@@ -58,24 +122,19 @@ test_percent = 0.3
 x_train, x_test, y_train, y_test = train_test_split(x_label_norm, y_label, test_size=test_percent, random_state=412)
 
 train_data = xgb.DMatrix(x_train, y_train)
+# 少量数据拟合时若测试集精度不高 尝试更改params的值 比如eta num_boost_rounds等
 params = {
     'eta': 0.01,
     'objective': 'reg:gamma',
     'alpha': 0.005,
     'gamma': 0,
     'max_depth': 8,
-    'min_child_weight': 3,
+    # 'min_child_weight': 3,
     # 'subsample': 0.8,
     # 'colsample_bytree': 0.8,
 }
-num_boost_rounds = 1000
+num_boost_rounds = 580
 xgboost = xgb.train(params=params, dtrain=train_data, num_boost_round=num_boost_rounds)
-# 对于分类变量 由于天生能用于分割的点就比较少 很容易被"weight"指标所忽略 故使用gain最可以代表特征的重要性
-xgb.plot_importance(xgboost, importance_type='gain')
-# plt.tight_layout()
-# 调整边距以解决features显示不全的问题
-# plt.gcf().subplots_adjust(left=0.22)
-# plt.show()
 
 
 # 首先对于训练集的k折交叉验证 评估模型的rmse【只需要训练集】
@@ -137,47 +196,19 @@ if r2 > 0.5:
     pred_data.insert(loc=0, column='Source', value='predicted')  # 备注数据来源于预测值
     # 将预测后的数据拼接到原始数据 形成补点后的dataframe
     final = pd.concat([raw_data, pred_data], axis=0)
+    """
+    加入原始数据中用于区分同一文章不同条数据特异性的Feature列
+    注意! 此时需要确保原始数据和预测数据concat之后的布局跟输入的csv形成的data相同
+    故输入的csv 需要确保【所有文章的】原始列在上方 之后紧跟怕【所有文章的】预测列 （注意不是单篇文章的原始列在上预测列在下然后是下一篇文章）
+    """
+    final.insert(0, 'Feature', data['Feature'].values)
 
     final.reset_index(drop=True, inplace=True)  # 重排原始+预测序列 得到完整的DataFrame
-    final.sort_values(by='Day', ascending=True, inplace=True)  # 按照Day排序
-    finals = final.copy()
-    for index in range(12, 16):
-        finals.loc[index,'Albumin'] = None
+    final.sort_values(by=['Feature', 'Day'], ascending=True, inplace=True)  # 先按照Feature的类型排序 在Feature内部再按照Day升序排列
+
     final.to_csv('final.csv', index=False)
 
-
-# 绘图调参 评价标准metrics='RMSE' 其它标准可见xgb_note
-def parameters():
-    fig, ax = plt.subplots(1)
-    params1 = {
-        'eta': 0.1,
-        'objective': 'reg:gamma',
-        'lambda': 0.005,
-        'gamma': 0,
-        'max_depth': 8,
-        'min_child_weight': 3,
-        # 'subsample': 0.7,
-        # 'colsample_bytree': 0.7,
-    }
-    params2 = {
-        'eta': 0.1,
-        'objective': 'reg:gamma',
-        'lambda': 0.005,
-        'gamma': 0,
-        'max_depth': 8,
-        'min_child_weight': 3,
-        # 'subsample': 0.7,
-        # 'colsample_bytree': 0.7,
-    }
-    cv_test1 = xgb.cv(params=params1, dtrain=train_data, num_boost_round=num_boost_rounds, folds=k_fold, metrics='rmse')
-    cv_test2 = xgb.cv(params=params2, dtrain=train_data, num_boost_round=600, folds=k_fold, metrics='rmse')
-    ax.plot(cv_test1.iloc[:, 0], c='red', label='train')
-    ax.plot(cv_test1.iloc[:, 2], c='blue', label='test')
-    ax.plot(cv_test2.iloc[:, 0], c='orange', label='train-modi')
-    ax.plot(cv_test2.iloc[:, 2], c='green', label='test-modi')
-
-    ax.legend()
-    plt.show()
+    plot()  # 将原始点和预测点绘制折线图
 
 
 

@@ -1,5 +1,10 @@
 # **代码未完成（feature列和xgboost的参数未最终确定）**
-
+"""
+切记 先在fitness对该数据集调参之后 再来使用相应参数计算contribution
+特别注意 计算线性相关性时 若某一列的值全部相同
+非线性关系模型会自动排除该变量 线性关系模型会出现NaN值
+因此请等所有数据提取完成后再行计算贡献度...
+"""
 # 使用xgboost和f_class(f_regression)计算变量的贡献度【特征重要性】
 # 注意数据缺失值fillna的处理方式 对于xgboost来说 也可以对缺失值不做处理
 # 数据归一化可在数据预处理阶段直接归一 无需单独开一个文件normalization 且归一化只需对自变量进行
@@ -19,8 +24,8 @@ csv_file = open('evaluation.csv', encoding='ISO-8859-1')
 data = pd.read_csv(csv_file)
 
 label_name = 'Albumin'
-feature_name = ['Day', 'Cell Type', 'Cell Seeding', 'Scaffold Type', 'Modification', 'Concentration', 'Pore Size', 'Thick',
-                'Diameter', 'Porosity', 'Static/dynamic']
+feature_name = ['Cell Type', 'Cell Seeding', 'Scaffold Type', 'Modi-1', 'Concentration', 'Pore Size', 'Thick',
+                'Diameter', 'Porosity', 'Flow Rate']
 # copy()方法创建df的深副本df_deep = df.copy([默认]deep=True) 【可以理解为 创建新的DataFrame并赋值 二者不共享内存空间】
 # 即df2重新开辟内存空间存放df_deep的数据 df与df_deep所指向数据的地址不一样而仅对应位置元素一样 故其中一个变量名中的元素发生变化，另一个不会随之发生变化
 x_label = data[feature_name].copy()
@@ -52,7 +57,6 @@ columns = x_label.columns  # x_label 和 x_pred的列变量相同
 x_label_norm = pd.DataFrame(scaler.fit_transform(x_label), columns=columns)
 x_label_pred_norm = pd.DataFrame(scaler.fit_transform(x_label_pred), columns=columns)
 
-
 # 此处对原始csv表格分割后且标准化后的数据 分割训练和测试集并交叉验证
 # 对划分之后的DataFrame划分训练集和测试集【注某行对应的功能指标为空的行为最终数据填充行 而不是测试集】
 test_percent = 0.3
@@ -62,16 +66,16 @@ x_train, x_test, y_train, y_test = train_test_split(x_label_norm, y_label, test_
 # 通过控制n_estimator来控制F_score的范围
 train_data = xgb.DMatrix(x_train, y_train)
 params = {
-    'eta': 0.1,
+    'eta': 0.01,
     'objective': 'reg:gamma',
-    'lambda': 0.005,
-    'gamma': 0.005,
+    'alpha': 0.005,
+    'gamma': 0,
     'max_depth': 8,
-    'min_child_weight': 3,
-    'subsample': 0.7,
-    # 'colsample_bytree': 0.7,
+    # 'min_child_weight': 3,
+    # 'subsample': 0.8,
+    # 'colsample_bytree': 0.8,
 }
-num_boost_rounds = 50
+num_boost_rounds = 580
 xgboost = xgb.train(params=params, dtrain=train_data, num_boost_round=num_boost_rounds)
 # 对于分类变量，由于天生能用于分割的点就比较少，很容易被"weight"指标所忽略；故使用gain最可以代表特征的重要性
 xgb.plot_importance(xgboost, importance_type='gain')
@@ -90,27 +94,27 @@ plt.show()
 # print(clf.predict(ys))
 
 
-# 以下开始计算 *线性* 相关性
-csv_data = pd.read_csv('evaluation.csv', encoding='ISO-8859-1')
-# # 若是计算parameters_norm.csv 注释掉下面两行即可
-# csv_data.drop(['ref'], axis=1, inplace=True)
-# csv_data.dropna(axis=1, inplace=True)
-# 计算每个自变量的 相关系数
-corr = csv_data.corr()
-# corr.to_csv('correlation.csv')
-# 计算每个自变量的 f_score p_score 前者越大/后者越小 那么与因变量的关系越大 即该自变量越重要
-x = np.array(x_label).astype(np.float64)
-y = np.array(y_label).astype(np.float64)
-f_score, p_score = f_regression(x, y)
-print('f score: ', f_score)
-print('p_score: ', p_score)
-# 以下操作将f_score值转化为百分比 即可近似 特征（自变量）的【贡献度】
-# 保存原数组sum 以免index的迭代中 sum会不断更新 造成不准确
-sums = f_score.sum()
-print(f'contribution rates of {x_label.shape[1]} features are:')
-
-for index in range(0, len(f_score)):
-    f_score[index] /= sums
-    # 此种百分比控制输出需掌握
-    print(f'{feature_name[index]}: {100*f_score[index]:.2f}% ')
+# # 以下开始计算 *线性* 相关性
+# csv_data = pd.read_csv('evaluation.csv', encoding='ISO-8859-1')
+# # # 若是计算parameters_norm.csv 注释掉下面两行即可
+# # csv_data.drop(['ref'], axis=1, inplace=True)
+# # csv_data.dropna(axis=1, inplace=True)
+# # 计算每个自变量的 相关系数
+# corr = csv_data.corr()
+# # corr.to_csv('correlation.csv')
+# # 计算每个自变量的 f_score p_score 前者越大/后者越小 那么与因变量的关系越大 即该自变量越重要
+# x = np.array(x_label).astype(np.float64)
+# y = np.array(y_label).astype(np.float64)
+# f_score, p_score = f_regression(x, y)
+# print('f score: ', f_score)
+# print('p_score: ', p_score)
+# # 以下操作将f_score值转化为百分比 即可近似 特征（自变量）的【贡献度】
+# # 保存原数组sum 以免index的迭代中 sum会不断更新 造成不准确
+# sums = f_score.sum()
+# print(f'contribution rates of {x_label.shape[1]} features are:')
+#
+# for index in range(0, len(f_score)):
+#     f_score[index] /= sums
+#     # 此种百分比控制输出需掌握
+#     print(f'{feature_name[index]}: {100*f_score[index]:.2f}% ')
 

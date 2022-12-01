@@ -5,7 +5,7 @@ import pandas as pd
 
 # 读取数据
 data = pd.read_csv('scopus - heart.csv')
-# 删除首行多余的列【因是直接从scopus-temp中再次读出，会默认再加入一列】
+# 删除首行多余的列【原因是直接从scopus-temp中再次读出，会默认再加入一列】
 data.drop(data.columns[0], axis=1, inplace=True)
 # 取作者-机构所有列（形式为data.iloc[:, x:y])
 df = data.iloc[:, 11:43].copy()
