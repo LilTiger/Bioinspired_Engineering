@@ -74,7 +74,7 @@ def plot():
     plt.xlabel('Day')
     plt.ylabel('Albumin (μg/day/10^6 cells)')
     plt.legend()
-    plt.savefig('line chart.svg', dpi=300)  # 用png可以无损压缩 jpg有损压缩
+    plt.savefig('line chart.svg', dpi=300)  # 用png可以无损压缩 jpg有损压缩 svg效果更好
     plt.show()
 
 
@@ -111,7 +111,7 @@ for index in range(0, len(y_label)):
 # x_label = x_label.fillna(x_label.median())
 # 数据归一化处理
 scaler = StandardScaler()
-columns = x_label.columns  # x_label 和 x_pred的列变量相同
+columns = x_label.columns  # x_label 和 x_pred 的列变量相同
 x_label_norm = pd.DataFrame(scaler.fit_transform(x_label), columns=columns)
 x_label_pred_norm = pd.DataFrame(scaler.fit_transform(x_label_pred), columns=columns)
 
@@ -176,13 +176,12 @@ if r2 > 0.5:
     # model = xgb.train(params=params, dtrain=test_data, num_boost_round=num_boost_rounds, xgb_model=xgboost)
     pred_data = xgb.DMatrix(x_label_pred_norm)
     pred_list = np.array(xgboost.predict(pred_data))
-    pred_list = np.around(pred_list, decimals=2)  # 数组元素保留两位小数
     # pred_list = [round(i, 2) for i in pred_list]  # 一行语句包含对整个list的循环保留特定小数位数操作
     print('The predicted output of complementary data is:', pred_list)  # 验证模型实际预测能力需要
 
     # 丢弃x/y_label_pred中的索引 重排索引
     # 解释一下为什么不必重排原始数据的索引 原始数据直接提取自原DataFrame 索引和数据一一对应 后续直接concat自变量和因变量即可
-    # 而预测数据中需将预测的值输入到y_label_pred 而预测结果保存在一个索引从0开始的pred_list 为了使y_label_pred和pred_list索引对应 需要重排
+    # 而预测数据中需将预测的值输入到y_label_pred 且预测结果保存在一个索引从0开始的pred_list 为了使y_label_pred和pred_list索引对应 需要重排
     y_label_pred.reset_index(drop=True, inplace=True)
     x_label_pred.reset_index(drop=True, inplace=True)
     # 填入预测的数据值
@@ -199,13 +198,13 @@ if r2 > 0.5:
     """
     加入原始数据中用于区分同一文章不同条数据特异性的Feature列
     注意! 此时需要确保原始数据和预测数据concat之后的布局跟输入的csv形成的data相同
-    故输入的csv 需要确保【所有文章的】原始列在上方 之后紧跟怕【所有文章的】预测列 （注意不是单篇文章的原始列在上预测列在下然后是下一篇文章）
+    故输入的csv 需要确保【所有文章的】原始列在上方 之后紧跟【所有文章的】预测列 （注意不是单篇文章的原始列在上预测列在下然后是下一篇文章）
     """
     final.insert(0, 'Feature', data['Feature'].values)
 
     final.reset_index(drop=True, inplace=True)  # 重排原始+预测序列 得到完整的DataFrame
     final.sort_values(by=['Feature', 'Day'], ascending=True, inplace=True)  # 先按照Feature的类型排序 在Feature内部再按照Day升序排列
-
+    final['Albumin'] = final['Albumin'].apply(lambda x: round(x, 2))  # lambda可定义函数 此处为对dataframe的某列数值保留两位小数
     final.to_csv('final.csv', index=False)
 
     plot()  # 将原始点和预测点绘制折线图
