@@ -63,7 +63,7 @@ def plot():
     plt.plot(x, y2, marker='^', markerfacecolor='white', label='Collagen-high', zorder=1)
     plt.plot(x, y3, marker='^', markerfacecolor='white', label='Collagen-low')
     plt.plot(x, y4, marker='^', markerfacecolor='white', label='Fibronectin-high')
-    plt.plot(x, y5, marker='^', markerfacecolor='white', label='Fivronectin-low')
+    plt.plot(x, y5, marker='^', markerfacecolor='white', label='Fibronectin-low')
     plt.scatter([2, 7, 11, 14], [3, 10, 19, 18], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
     plt.scatter([2, 7, 11, 14], [5, 24, 32, 36], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
     plt.scatter([2, 7, 11, 14], [2, 6, 10, 17], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
@@ -106,6 +106,7 @@ for index in range(0, len(y_label)):
         y_label_pred.drop(index=index, inplace=True)
         x_label_pred.drop(index=index, inplace=True)
 
+# 空值是直接拟合还是赋予特定值 与-1类型的数据区分开 值得思考
 # fillna中 pad为利用前面的数据填充 df.mode()/median()/mean()为众数、中位数、平均值填充
 # x_label = x_label.interpolate(method='pad')
 # x_label = x_label.fillna(x_label.median())

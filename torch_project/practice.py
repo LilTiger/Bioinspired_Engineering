@@ -124,7 +124,7 @@ def tes_loop(dataloader, model, loss_function):
             # 因此 类文件夹务必从0开始编号
             correct += (prediction.argmax(1) == y).type(torch.float).sum().item()
 
-    print(f"Accuracy : {100*(correct/size):>0.1f}%, Average loss : {(test_loss/num_batches):>8f}")
+    print(f"Accuracy : {100*(correct/size):>0.1f}%, Average loss : {test_loss/num_batches:>8f}")
 
 
 model = NeuralNetwork().to(device)

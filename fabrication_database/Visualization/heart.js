@@ -141,6 +141,32 @@ Chart.defaults.global.defaultFontColor = '#292b2c';
                 }
               });
             })
+
+            // // Table
+            // axios.get('http://www.dviz.cn/BiologicalStemCell/search/list',
+            // { params: {page:1, limit:10, param:'heart'}})
+            // .then(res=> {
+            //   console.log(res)
+            //   let jsonlist = res.data.data['dataList'];
+            //   let total = res.data.data['total']
+            //
+            //
+            //   // 将接口的数据返回并拼接成表格
+            //
+            //   var str = "";
+            //   var showfilebody=document.getElementById('showfilebody');
+            //   new simpleDatatables.DataTable(Table_heart);
+            //   for(var i=0; i<total; i++){
+            //
+            //     str += "<tr><td>" + jsonlist[i].title+ "</td><td>" + jsonlist[i].authors+ "</td><td>" +
+            //         jsonlist[i].year + "</td><td>" + jsonlist[i].journal + "</td><td>" + jsonlist[i].citation +
+            //         "</td><td>" + jsonlist[i].keywords +"</td></tr>";
+            //         // $("#Table_heart").append(str);
+            //         showfilebody.innerHTML=str;  //此种方法为直接覆盖 非直接将后端数据嵌入表格中
+            //
+            //   }
+            //     })
+
                  .catch(error=>{
                 // 连接接口失败抛出错误
             })
