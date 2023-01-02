@@ -364,27 +364,23 @@
                                 Related Papers
                             </div>
                             <div class="card-body">
-                                <!--
-                                此处在table处使用Table_heart id在后文定位以提供基本表格样式架构
-                                -->
+                                <!-- 此处在table处使用id=Table_heart 以在javescript语句中生成基本表格样式架构 -->
                                 <table id="Table_heart">
                                     <thead>
                                         <tr>
                                             <th>Title</th>
-                                            <th>Author</th>
+                                            <th>Author(s)</th>
                                             <th>Year</th>
                                             <th>Journal</th>
                                             <th>Citation</th>
                                             <th>Keywords</th>
                                         </tr>
                                     </thead>
-                                    <!--
-                                    此处在tbody处利用container id在后文中使用handlebar辅助框架定位语句以填充数据
-                                    -->
+                                    <!-- 此处在tbody处利用id=container 以在handlebar语句中定位并填充数据 -->
                                     <tbody id="container">
                                      <script type="text/x-handlebars-template" id="template">
                                             {{#each this}}
-                                            <tr align="left">
+                                            <tr>
                                                 <td>{{title}}</td>
                                                 <td>{{authors}}</td>
                                                 <td>{{year}}</td>
@@ -413,11 +409,12 @@
         <script type="text/javascript">
 
             axios.get('http://www.dviz.cn/BiologicalStemCell/search/list',
-                { params: {page:1, limit:400, param:'heart'}})
+                <!-- 此处limit的值可以设为一个非常大的数字 超过部分的数据不会传输 只会传输最大的数据值 -->
+                { params: {page:1, limit:528, param:'heart'}})
                 .then(res=> {
                   console.log(res)
                   let jsonlist = res.data.data['dataList'];
-
+            <!-- 以下为handlebar部分 -->
             //获取需要放数据的容器
             var container = document.querySelector('#container');
             //也就是获取我们定义的模板的dom对象。主要是想获取里面的内容（innerHTML）
