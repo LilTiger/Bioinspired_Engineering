@@ -8,7 +8,7 @@ Chart.defaults.global.defaultFontColor = '#292b2c';
     axios.all([
 
         // Pie Chart
-        axios.get('http://www.dviz.cn/BiologicalStemCell/statistics/manufacturingStrategy',
+        axios.get('http://data.iscr.ac.cn/mm-api/BiologicalStemCell/statistics/manufacturingStrategy',
             { params: parameter})
             .then(res=>{
                 // 接口数据
@@ -29,7 +29,7 @@ Chart.defaults.global.defaultFontColor = '#292b2c';
         })
 
         // Bar Chart
-        axios.get('http://www.dviz.cn/BiologicalStemCell/statistics/materials',
+        axios.get('http://data.iscr.ac.cn/mm-api/BiologicalStemCell/statistics/materials',
             { params: parameter})
             .then(res=> {
               // 接口数据
@@ -81,7 +81,7 @@ Chart.defaults.global.defaultFontColor = '#292b2c';
             })
 
           // Area Chart
-          axios.get('http://www.dviz.cn/BiologicalStemCell/statistics/cell',
+          axios.get('http://data.iscr.ac.cn/mm-api/BiologicalStemCell/statistics/cell',
             { params: parameter})
             .then(res=> {
               // 接口数据

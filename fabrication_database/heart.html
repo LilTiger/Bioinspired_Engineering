@@ -374,6 +374,7 @@
                                             <th>Journal</th>
                                             <th>Citation</th>
                                             <th>Keywords</th>
+                                            <th>Doi</th>
                                         </tr>
                                     </thead>
                                     <!-- 此处在tbody处利用id=container 以在handlebar语句中定位并填充数据 -->
@@ -387,6 +388,7 @@
                                                 <td>{{journal}}</td>
                                                 <td>{{citation}}</td>
                                                 <td>{{keywords}}</td>
+                                                <td><a href="https://doi.org/{{doi}}">{{doi}}</a></td>
                                             </tr>
                                             {{/each}}
                                      </script>
@@ -408,7 +410,7 @@
         </div>
         <script type="text/javascript">
 
-            axios.get('http://www.dviz.cn/BiologicalStemCell/search/list',
+            axios.get('http://data.iscr.ac.cn/mm-api/BiologicalStemCell/search/list',
                 <!-- 此处limit的值可以设为一个非常大的数字 超过部分的数据不会传输 只会传输最大的数据值 -->
                 { params: {page:1, limit:528, param:'heart'}})
                 .then(res=> {
