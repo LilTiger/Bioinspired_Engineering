@@ -7,7 +7,6 @@
         <meta name="description" content="" />
         <meta name="author" content="" />
         <title>Biofabrication database v1.0</title>
-        <link href="https://cdn.jsdelivr.net/npm/simple-datatables@latest/dist/style.css" rel="stylesheet" />
         <link href="css/styles.css" rel="stylesheet" />
         <script type="text/javascript" src="https://assets.pyecharts.org/assets/echarts.min.js"></script>
         <script type="text/javascript" src="https://assets.pyecharts.org/assets/maps/world.js"></script>
@@ -16,6 +15,10 @@
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="js/jquery-3.6.0.min.js"></script>
         <script src="js/handlebars.js"></script>
+        <script src="js/jquery.dataTables.min.js"></script>
+        <link rel="stylesheet" href="css/dataTables.bootstrap5.min.css">
+        <link rel="stylesheet" href="css/bootstrap1.min.css">
+        <script src="js/dataTables.bootstrap5.min.js"></script>
     </head>
 
     <header>
@@ -25,6 +28,8 @@
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
+                <!-- Sidebar Toggle-->
+            <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
       <div class="collapse navbar-collapse" id="navbarCollapse">
         <ul class="navbar-nav me-auto mb-2 mb-auto">
           <li class="nav-item">
@@ -365,7 +370,7 @@
                             </div>
                             <div class="card-body">
                                 <!-- 此处在table处使用id=Table_heart 以在javescript语句中生成基本表格样式架构 -->
-                                <table id="Table_heart">
+                                <table id="Table_heart" class="table table-striped">
                                     <thead>
                                         <tr>
                                             <th>Title</th>
@@ -427,7 +432,7 @@
             //把后台获取到的数据渲染到页面
             container.innerHTML = template(jsonlist);
             //为Table创建表格样式架构
-            new simpleDatatables.DataTable(Table_heart);
+            $('#Table_heart').DataTable();
             })
 
         </script>
@@ -435,6 +440,5 @@
         <script src="js/scripts.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
         <script src="Visualization/heart.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
     </body>
 </html>
