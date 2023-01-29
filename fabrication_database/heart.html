@@ -432,7 +432,7 @@
             //把后台获取到的数据渲染到页面
             container.innerHTML = template(jsonlist);
             //为Table创建表格样式架构
-            $('#Table_heart').DataTable();
+            $('#Table_heart').DataTable({order: [[2, 'desc']],});
             })
 
         </script>
