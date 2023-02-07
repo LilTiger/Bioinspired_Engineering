@@ -1,13 +1,15 @@
-# 拟合函数 使用了xgboost原生的拟合函数train()和交叉验证函数cv() 而sklearn封装的XGBRegressor略有不同 不可增量学习【参见xgb_note】
+# 拟合函数 使用了xgboost原生的拟合函数train()和交叉验证函数cv() 而sklearn封装的XGBRegressor略有不同 不可持续学习【参见xgb_note】
 # 适用于csv_file中为 全部原始数据 或 原始数据+预测数据行共存（预测数据行即 补充的 文章未给出的天数对应的Albumin为空的行）
+# xgboost无须数据标准化
 # **为附加知识点
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.legend import Legend
 import xgboost as xgb
+from xgboost import XGBRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, mean_absolute_percentage_error, r2_score
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.model_selection import train_test_split, cross_val_score, KFold, GridSearchCV
 from sklearn.neighbors import KNeighborsRegressor
 import joblib
@@ -78,17 +80,37 @@ def plot():
     plt.show()
 
 
-csv_file = open('evaluation.csv', encoding='ISO-8859-1')
+csv_file = open('liver_data/chip-albumin.csv', encoding='utf-8')
 data = pd.read_csv(csv_file)
 
+# 采用特定 label_name 和 feature_name 时 对应更改名称或退注释即可
 label_name = 'Albumin'
-feature_name = ['Day', 'Cell Type', 'Cell Seeding', 'Scaffold Type', 'Modi-1', 'Concentration', 'Pore Size', 'Thick',
-                'Diameter', 'Porosity', 'Flow Rate']
+# feature_name = ['Day', 'Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Co-Cell Seeding-2', 'Scaffold', 'Scaffold-1-Con',
+#                 'Scaffold-2-Con', 'Scaffold-3-Con', 'Modification', 'Modi-1-Con', 'Modi-2-Con', 'Pore Size', 'Diameter',
+#                 'Thick', 'Porosity', 'Flow Rate', 'Fabrication', 'Fabr-para1', 'Fabr-para2', 'Fabr-para3']  # scaffold
+# feature_name = ['Day', 'Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Spheroid-Dia', 'Tethered', 'Tethered Film',
+#                 'Modification', 'Flow Rate']  # spheroid
+feature_name = ['Day', 'Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Material', 'Material-1-Con', 'Material-2-Con',
+                'Modification', 'Modi-1-Con', 'Modi-2-Con', 'Self-circulated', 'Multi-organ', 'Medium',
+                'Medium-out', 'Medium-in', 'Serum-out', 'Serum-in', 'Shear Stress', 'Channel Width',
+                'Physical-sti', 'Flow Rate']  # chip
+# feature_name = ['Day', 'Cell', 'Cell Seeding', 'Coat', 'Co-Cell Seeding']  # 2D
+"""
 # copy()方法创建df的深副本df_deep = df.copy([默认]deep=True) 【可以理解为 创建新的DataFrame并赋值 二者不共享内存空间】
 # 即df2重新开辟内存空间存放df_deep的数据 df与df_deep所指向数据的地址不一样而仅对应位置元素一样 故其中一个变量名中的元素发生变化，另一个不会随之发生变化
+"""
 x_label = data[feature_name].copy()
 y_label = pd.DataFrame(data[label_name]).copy()
-# 新建预测变量dataframe 用于从原始数据中drop有原始数据的行
+
+# """
+# 不能比较大小的属性，通常我们不能用简单的数值来粗暴替换。因为属性的数值大小会影响到权重矩阵的计算，不存在大小关系的属性，其权重也不应该发生相应的变化
+# """
+# # 对枚举型变量采用编码方式One-Hot
+# onehot = OneHotEncoder()
+# onehot_feature = pd.DataFrame(onehot.fit_transform(x_label[['Cell', 'Scaffold']]).toarray())
+# x_label.drop(columns=['Cell', 'Scaffold'], inplace=True)
+# x_label_norm = pd.concat([x_label, onehot_feature], axis=1)
+# 新建预测数据结构dataframe 用于从原始数据中drop有原始数据的行
 x_label_pred = x_label.copy()
 y_label_pred = y_label.copy()
 
@@ -106,18 +128,17 @@ for index in range(0, len(y_label)):
         y_label_pred.drop(index=index, inplace=True)
         x_label_pred.drop(index=index, inplace=True)
 
-# 空值是直接拟合还是赋予特定值 与-1类型的数据区分开 值得思考
 # fillna中 pad为利用前面的数据填充 df.mode()/median()/mean()为众数、中位数、平均值填充
 # x_label = x_label.interpolate(method='pad')
 # x_label = x_label.fillna(x_label.median())
-# 数据归一化处理
+# 数据标准化 xgboost可略过
 scaler = StandardScaler()
 columns = x_label.columns  # x_label 和 x_pred 的列变量相同
 x_label_norm = pd.DataFrame(scaler.fit_transform(x_label), columns=columns)
 x_label_pred_norm = pd.DataFrame(scaler.fit_transform(x_label_pred), columns=columns)
 
 # 此处对原始csv表格分割后且标准化后的数据 分割训练和测试集并交叉验证
-# 对划分之后的DataFrame划分训练集和测试集【某行对应的功能指标为空的行为最终数据填充行 而不是测试集】
+# 对划分之后的DataFrame划分训练集和测试集【某行对应的功能指标为空的行为最终数据填充行 也即预测行 而不是测试集】
 test_percent = 0.3
 # 注意分割训练/测试集时要对norm后的x_label进行操作
 x_train, x_test, y_train, y_test = train_test_split(x_label_norm, y_label, test_size=test_percent, random_state=412)
@@ -125,18 +146,33 @@ x_train, x_test, y_train, y_test = train_test_split(x_label_norm, y_label, test_
 train_data = xgb.DMatrix(x_train, y_train)
 # 少量数据拟合时若测试集精度不高 尝试更改params的值 比如eta num_boost_rounds等
 params = {
-    'eta': 0.01,
+    'eta': 0.1,
     'objective': 'reg:gamma',
     'alpha': 0.005,
     'gamma': 0,
-    'max_depth': 8,
-    # 'min_child_weight': 3,
-    # 'subsample': 0.8,
+    'max_depth': 12,
+    # 'min_child_weight': 6,
+    # 'subsample': 0.2,
     # 'colsample_bytree': 0.8,
 }
-num_boost_rounds = 580
+num_boost_rounds = 1600
 xgboost = xgb.train(params=params, dtrain=train_data, num_boost_round=num_boost_rounds)
 
+# """
+# 以下开始计算贡献度
+# """
+# # 对于分类变量，由于天生能用于分割的点就比较少，很容易被"weight"指标所忽略；故使用gain最可以代表特征的重要性
+# xgb.plot_importance(xgboost, importance_type='gain', xlabel='gain', max_num_features=10, show_values=False)  # 论文中可设置show_values为False
+# plt.tight_layout()
+# # 调整左边距以解决features显示不全的问题
+# plt.gcf().subplots_adjust(left=0.22)
+# plt.savefig('pics/chip-albumin.svg', dpi=300)
+# plt.show()
+# """
+# 画出树结构
+# """
+# tree = xgb.to_graphviz(xgboost, num_trees=2)
+# tree.view("trees/tree")
 
 # 首先对于训练集的k折交叉验证 评估模型的rmse【只需要训练集】
 k_fold = KFold(n_splits=5, shuffle=True, random_state=412)
@@ -164,21 +200,21 @@ print("MSE: %.2f" % mse)
 print("RMSE: %.2f" % (mse ** (1 / 2.0)))
 # 模型完整存储了训练的参数 保存和读取模型对结果无任何影响
 # 输出模型测试集的实际值和预测值
-print('The true label of test set is:', np.array(y_test).T)
-print('The predicted output of test set is:', y_test_pred)
+# print('The true label of test set is:', np.array(y_test).T)
+# print('The predicted output of test set is:', y_test_pred)
 joblib.dump(xgboost, 'xgb.pkl')  # 保存模型
 
 
+# 若输入数据不含预测行 也即不含空值的功能指标行 将以下代码注释即可
 # 以下对测试后的模型进行天数预测
-# 注意 最好在测试准确率较高时真正输出预测数据
-if r2 > 0.5:
+if r2 > 0.8:
     xgboost = joblib.load('xgb.pkl')
     # 当有新数据需要增量学习时 使用以下指令【注意eta学习率需要酌情变小 类似于微调】
     # model = xgb.train(params=params, dtrain=test_data, num_boost_round=num_boost_rounds, xgb_model=xgboost)
     pred_data = xgb.DMatrix(x_label_pred_norm)
     pred_list = np.array(xgboost.predict(pred_data))
     # pred_list = [round(i, 2) for i in pred_list]  # 一行语句包含对整个list的循环保留特定小数位数操作
-    print('The predicted output of complementary data is:', pred_list)  # 验证模型实际预测能力需要
+    # print('The predicted output of complementary data is:', pred_list)  # 验证模型实际预测能力需要
 
     # 丢弃x/y_label_pred中的索引 重排索引
     # 解释一下为什么不必重排原始数据的索引 原始数据直接提取自原DataFrame 索引和数据一一对应 后续直接concat自变量和因变量即可
@@ -206,9 +242,7 @@ if r2 > 0.5:
     final.reset_index(drop=True, inplace=True)  # 重排原始+预测序列 得到完整的DataFrame
     final.sort_values(by=['Feature', 'Day'], ascending=True, inplace=True)  # 先按照Feature的类型排序 在Feature内部再按照Day升序排列
     final['Albumin'] = final['Albumin'].apply(lambda x: round(x, 2))  # lambda可定义函数 此处为对dataframe的某列数值保留两位小数
-    final.to_csv('final.csv', index=False)
+    # final.to_csv('final.csv', index=False)
 
-    plot()  # 将原始点和预测点绘制折线图
-
-
+    # plot()  # 将原始点和预测点绘制折线图
 

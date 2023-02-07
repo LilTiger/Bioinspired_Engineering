@@ -45,3 +45,7 @@ multi:softprob：和 softmax 一样，但是输出的一个形式为 ndata * ncl
 rank:pairwise：使用 LambdaMART 进行文档对方法排名（pairwise），并使成对损失最小化。
 rank:ndcg：使用 LambdaMART 进行文档列表方法排名（listwise），并使标准化折让累积收益（NDCG）最大化。
 rank:map：使用 LambdaMART 进行文档列表方法排名（listwise），并使平均准确率（MAP）最大化。
+
+
+## 树模型并非是尺度敏感的 标准化与否不会对贡献度和测试准确性造成影响 
+

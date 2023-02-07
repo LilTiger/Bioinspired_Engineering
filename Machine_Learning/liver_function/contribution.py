@@ -1,6 +1,8 @@
 # **代码未完成（feature列和xgboost的参数未最终确定）**
 """
-切记 先在fitness对该数据集调参之后 再来使用相应参数计算contribution
+
+注意 此处代码未采用 放弃使用线性模型计算contribution的方法！
+
 特别注意 计算线性相关性时 若某一列的值全部相同
 非线性关系模型会自动排除该变量 线性关系模型会出现NaN值
 因此请等所有数据提取完成后再行计算贡献度...
@@ -20,12 +22,12 @@ from warnings import simplefilter
 simplefilter(action='ignore', category=FutureWarning)
 from sklearn.feature_selection import f_regression
 
-csv_file = open('evaluation.csv', encoding='ISO-8859-1')
+csv_file = open('scaffold.csv', encoding='utf-8')
 data = pd.read_csv(csv_file)
 
 label_name = 'Albumin'
-feature_name = ['Cell Type', 'Cell Seeding', 'Scaffold Type', 'Modi-1', 'Concentration', 'Pore Size', 'Thick',
-                'Diameter', 'Porosity', 'Flow Rate']
+feature_name = ['Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Scaffold', 'Scaffold-1-Con', 'Modi', 'Modi-1-Con',
+                'Pore Size', 'Thick', 'Diameter', 'Porosity', 'Flow Rate']  # scaffold
 # copy()方法创建df的深副本df_deep = df.copy([默认]deep=True) 【可以理解为 创建新的DataFrame并赋值 二者不共享内存空间】
 # 即df2重新开辟内存空间存放df_deep的数据 df与df_deep所指向数据的地址不一样而仅对应位置元素一样 故其中一个变量名中的元素发生变化，另一个不会随之发生变化
 x_label = data[feature_name].copy()
@@ -51,6 +53,11 @@ for index in range(0, len(y_label)):
 # fillna中 pad为利用前面的数据填充 df.mode()/median()/mean()为众数、中位数、平均值填充
 # x_label = x_label.interpolate(method='pad')
 # x_label = x_label.fillna(x_label.median())
+"""
+若要计算线性相关性 需确保输入的数据无空值（XGBoost本身可以处理空值 因此plot_importance不需要单独处理空值）
+因此要对文章中 未给出的数据 赋予一个空值
+注意 填补不同的空值会对plot_importance和f_score都造成影响
+"""
 # 数据归一化处理
 scaler = StandardScaler()
 columns = x_label.columns  # x_label 和 x_pred的列变量相同
@@ -77,6 +84,7 @@ params = {
 }
 num_boost_rounds = 580
 xgboost = xgb.train(params=params, dtrain=train_data, num_boost_round=num_boost_rounds)
+
 # 对于分类变量，由于天生能用于分割的点就比较少，很容易被"weight"指标所忽略；故使用gain最可以代表特征的重要性
 xgb.plot_importance(xgboost, importance_type='gain')
 plt.tight_layout()
@@ -94,27 +102,27 @@ plt.show()
 # print(clf.predict(ys))
 
 
-# # 以下开始计算 *线性* 相关性
-# csv_data = pd.read_csv('evaluation.csv', encoding='ISO-8859-1')
-# # # 若是计算parameters_norm.csv 注释掉下面两行即可
-# # csv_data.drop(['ref'], axis=1, inplace=True)
-# # csv_data.dropna(axis=1, inplace=True)
-# # 计算每个自变量的 相关系数
-# corr = csv_data.corr()
-# # corr.to_csv('correlation.csv')
-# # 计算每个自变量的 f_score p_score 前者越大/后者越小 那么与因变量的关系越大 即该自变量越重要
-# x = np.array(x_label).astype(np.float64)
-# y = np.array(y_label).astype(np.float64)
-# f_score, p_score = f_regression(x, y)
-# print('f score: ', f_score)
-# print('p_score: ', p_score)
-# # 以下操作将f_score值转化为百分比 即可近似 特征（自变量）的【贡献度】
-# # 保存原数组sum 以免index的迭代中 sum会不断更新 造成不准确
-# sums = f_score.sum()
-# print(f'contribution rates of {x_label.shape[1]} features are:')
-#
-# for index in range(0, len(f_score)):
-#     f_score[index] /= sums
-#     # 此种百分比控制输出需掌握
-#     print(f'{feature_name[index]}: {100*f_score[index]:.2f}% ')
+# 以下开始计算 *线性* 相关性
+csv_data = pd.read_csv('scaffold.csv', encoding='utf-8')
+# # 若是计算parameters_norm.csv 注释掉下面两行即可
+# csv_data.drop(['ref'], axis=1, inplace=True)
+# csv_data.dropna(axis=1, inplace=True)
+# 计算每个自变量的 相关系数
+corr = csv_data.corr()
+# corr.to_csv('correlation.csv')
+# 计算每个自变量的 f_score p_score 前者越大/后者越小 那么与因变量的关系越大 即该自变量越重要
+x = np.array(x_label).astype(np.float64)
+y = np.array(y_label).astype(np.float64)
+f_score, p_score = f_regression(x, y)
+print('f score: ', f_score)
+print('p_score: ', p_score)
+# 以下操作将f_score值转化为百分比 即可近似 特征（自变量）的【贡献度】
+# 保存原数组sum 以免index的迭代中 sum会不断更新 造成不准确
+sums = f_score.sum()
+print(f'contribution rates of {x_label.shape[1]} features are:')
+
+for index in range(0, len(f_score)):
+    f_score[index] /= sums
+    # 此种百分比控制输出需掌握
+    print(f'{feature_name[index]}: {100*f_score[index]:.2f}% ')
 
