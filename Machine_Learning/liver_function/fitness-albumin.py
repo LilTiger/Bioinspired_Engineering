@@ -52,34 +52,55 @@ def parameters():
 
 
 # 将原始和预测数据绘制折线图 此处需根据不同文章的Feature作更改
-def plot():
-    x = np.linspace(2, 14, 13)
-    y1 = final.loc[final['Feature'] == 'PLGA']['Albumin']
-    y2 = final.loc[final['Feature'] == 'PLGA-Chigh']['Albumin']
-    y3 = final.loc[final['Feature'] == 'PLGA-Clow']['Albumin']
-    y4 = final.loc[final['Feature'] == 'PLGA-Fhigh']['Albumin']
-    y5 = final.loc[final['Feature'] == 'PLGA-Flow']['Albumin']
+def plot_2D():
+    x = np.linspace(1, 15, 15)
+
+    y = final.iloc[33:37, 1:3]
+    xx = final.iloc[272:283, 1:3]
+    y = pd.concat([y, xx], axis=0)
+    y.sort_values(by=['Day'], inplace=True)
+    y.drop('Day', axis=1, inplace=True)
     plt.figure()
     # 以下方法通过折线图在下 散点图（文章提供的真实数据点）在上的方式形成 真实+预测 拟合曲线
-    plt.plot(x, y1, marker='^', markerfacecolor='white', label='PLGA', zorder=1)  # 可以通过zorder设置不同曲线的优先级
-    plt.plot(x, y2, marker='^', markerfacecolor='white', label='Collagen-high', zorder=1)
-    plt.plot(x, y3, marker='^', markerfacecolor='white', label='Collagen-low')
-    plt.plot(x, y4, marker='^', markerfacecolor='white', label='Fibronectin-high')
-    plt.plot(x, y5, marker='^', markerfacecolor='white', label='Fibronectin-low')
-    plt.scatter([2, 7, 11, 14], [3, 10, 19, 18], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
-    plt.scatter([2, 7, 11, 14], [5, 24, 32, 36], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
-    plt.scatter([2, 7, 11, 14], [2, 6, 10, 17], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
-    plt.scatter([2, 7, 11, 14], [3, 7, 12, 18], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
-    plt.scatter([2, 7, 11, 14], [5, 12, 18, 24], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+    plt.plot(x, y, marker='o', markerfacecolor='white', label='2D', zorder=1)  # 可以通过zorder设置不同曲线的优先级
+
+    plt.scatter([5, 9, 12, 15], [5.5, 0.6, 0.16, 0.16], marker='o', zorder=2)  # 可以通过zorder设置不同曲线的优先级
 
     plt.title('Albumin Secretion Line Chart')
     plt.xlabel('Day')
     plt.ylabel('Albumin (μg/day/10^6 cells)')
     plt.legend()
-    plt.savefig('line chart.svg', dpi=300)  # 用png可以无损压缩 jpg有损压缩 svg效果更好
+    plt.savefig('pics/2d line chart.svg', dpi=300)  # 用png可以无损压缩 jpg有损压缩 svg效果更好
     plt.show()
 
+def plot():
+    x = np.linspace(1, 14, 14)
+    y1 = final.loc[final['Feature'] == '1-PLGA']['Albumin']
+    y2 = final.loc[final['Feature'] == '1-PLGA-Chigh']['Albumin']
+    y3 = final.loc[final['Feature'] == '1-PLGA-Clow']['Albumin']
+    y4 = final.loc[final['Feature'] == '1-PLGA-Fhigh']['Albumin']
+    y5 = final.loc[final['Feature'] == '1-PLGA-Flow']['Albumin']
 
+    plt.figure()
+    # 以下方法通过折线图在下 散点图（文章提供的真实数据点）在上的方式形成 真实+预测 拟合曲线
+    plt.plot(x, y1, marker='^', markerfacecolor='white', label='PLGA', zorder=1)  # 可以通过zorder设置不同曲线的优先级
+    plt.plot(x, y2, marker='^', markerfacecolor='white', label='PLGA+H-Collagen', zorder=1)
+    plt.plot(x, y3, marker='^', markerfacecolor='white', label='PLGA+L-Collagen')
+    plt.plot(x, y4, marker='^', markerfacecolor='white', label='PLGA+H-Fibronectin')
+    plt.plot(x, y5, marker='^', markerfacecolor='white', label='PLGA+L-Fibronectin')
+    plt.scatter([2, 7, 11, 14], [7.64, 2.41, 4.02, 3.22], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+    plt.scatter([2, 7, 11, 14], [24.66, 24.66, 26.27, 34.99], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+    plt.scatter([2, 7, 11, 14], [11.39, 6.03, 13.67, 16.09], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+    plt.scatter([2, 7, 11, 14], [12.73, 7.37, 4.83, 14.74], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+    plt.scatter([2, 7, 11, 14], [11.13, 11.8, 15.68, 16.22], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+
+    plt.title('Albumin Secretion Line Chart')
+    plt.xlabel('Day')
+    plt.ylabel('Albumin (μg/day/10^6 cells)')
+    # plt.rcParams.update({'font.size': 9})
+    plt.legend()
+    plt.savefig('pics/scaffold line chart.svg', dpi=300)  # 用png可以无损压缩 jpg有损压缩 svg效果更好
+    plt.show()
 csv_file = open('liver_data/chip-albumin.csv', encoding='utf-8')
 data = pd.read_csv(csv_file)
 
@@ -166,8 +187,9 @@ xgboost = xgb.train(params=params, dtrain=train_data, num_boost_round=num_boost_
 # plt.tight_layout()
 # # 调整左边距以解决features显示不全的问题
 # plt.gcf().subplots_adjust(left=0.22)
-# plt.savefig('pics/chip-albumin.svg', dpi=300)
+# # plt.savefig('pics/scaffold-albumin.svg', dpi=300)
 # plt.show()
+
 # """
 # 画出树结构
 # """
@@ -242,7 +264,7 @@ if r2 > 0.8:
     final.reset_index(drop=True, inplace=True)  # 重排原始+预测序列 得到完整的DataFrame
     final.sort_values(by=['Feature', 'Day'], ascending=True, inplace=True)  # 先按照Feature的类型排序 在Feature内部再按照Day升序排列
     final['Albumin'] = final['Albumin'].apply(lambda x: round(x, 2))  # lambda可定义函数 此处为对dataframe的某列数值保留两位小数
-    # final.to_csv('final.csv', index=False)
+    final.to_csv('scaffold.csv', index=False)
 
     # plot()  # 将原始点和预测点绘制折线图
 

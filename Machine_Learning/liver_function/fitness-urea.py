@@ -50,50 +50,74 @@ def parameters():
     ax.legend()
     plt.show()
 
+def plot_2D():
+    x = np.linspace(1, 15, 15)
 
-# 将原始和预测数据绘制折线图 此处需根据不同文章的Feature作更改
-def plot():
-    x = np.linspace(2, 14, 13)
-    y1 = final.loc[final['Feature'] == 'PLGA']['Urea']
-    y2 = final.loc[final['Feature'] == 'PLGA-Chigh']['Urea']
-    y3 = final.loc[final['Feature'] == 'PLGA-Clow']['Urea']
-    y4 = final.loc[final['Feature'] == 'PLGA-Fhigh']['Urea']
-    y5 = final.loc[final['Feature'] == 'PLGA-Flow']['Urea']
+    y = final.iloc[33:37, 1:3]
+    xx = final.iloc[272:283, 1:3]
+    y = pd.concat([y, xx], axis=0)
+    y.sort_values(by=['Day'], inplace=True)
+    y.drop('Day', axis=1, inplace=True)
     plt.figure()
     # 以下方法通过折线图在下 散点图（文章提供的真实数据点）在上的方式形成 真实+预测 拟合曲线
-    plt.plot(x, y1, marker='^', markerfacecolor='white', label='PLGA', zorder=1)  # 可以通过zorder设置不同曲线的优先级
-    plt.plot(x, y2, marker='^', markerfacecolor='white', label='Collagen-high', zorder=1)
-    plt.plot(x, y3, marker='^', markerfacecolor='white', label='Collagen-low')
-    plt.plot(x, y4, marker='^', markerfacecolor='white', label='Fibronectin-high')
-    plt.plot(x, y5, marker='^', markerfacecolor='white', label='Fibronectin-low')
-    plt.scatter([2, 7, 11, 14], [3, 10, 19, 18], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
-    plt.scatter([2, 7, 11, 14], [5, 24, 32, 36], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
-    plt.scatter([2, 7, 11, 14], [2, 6, 10, 17], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
-    plt.scatter([2, 7, 11, 14], [3, 7, 12, 18], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
-    plt.scatter([2, 7, 11, 14], [5, 12, 18, 24], marker='^', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+    plt.plot(x, y, marker='o', markerfacecolor='white', label='2D', zorder=1)  # 可以通过zorder设置不同曲线的优先级
+
+    plt.scatter([5, 9, 12, 15], [5.5, 0.6, 0.16, 0.16], marker='o', zorder=2)  # 可以通过zorder设置不同曲线的优先级
 
     plt.title('Urea Secretion Line Chart')
     plt.xlabel('Day')
     plt.ylabel('Urea (μg/day/10^6 cells)')
     plt.legend()
-    plt.savefig('line chart.svg', dpi=300)  # 用png可以无损压缩 jpg有损压缩 svg效果更好
+    plt.savefig('pics/2d line chart.svg', dpi=300)  # 用png可以无损压缩 jpg有损压缩 svg效果更好
+    plt.show()
+
+# 将原始和预测数据绘制折线图 此处需根据不同文章的Feature作更改
+def plot():
+    x = np.linspace(1, 15, 15)
+    y1 = final.loc[final['Feature'] == '13-0']['Urea']
+    y2 = final.loc[final['Feature'] == '13-100']['Urea']
+    y3 = final.loc[final['Feature'] == '13-25']['Urea']
+    y4 = final.loc[final['Feature'] == '13-50']['Urea']
+    y5 = final.loc[final['Feature'] == '13-75']['Urea']
+
+    plt.figure()
+    # 以下方法通过折线图在下 散点图（文章提供的真实数据点）在上的方式形成 真实+预测 拟合曲线
+    plt.plot(x, y1, marker='D', markerfacecolor='white', label='Flow: 0', zorder=1)  # 可以通过zorder设置不同曲线的优先级
+    plt.plot(x, y2, marker='D', markerfacecolor='white', label='Flow: 100', zorder=1)
+    plt.plot(x, y3, marker='D', markerfacecolor='white', label='Flow: 25', zorder=1)  # 可以通过zorder设置不同曲线的优先级
+    plt.plot(x, y4, marker='D', markerfacecolor='white', label='Flow: 50', zorder=1)
+    plt.plot(x, y5, marker='D', markerfacecolor='white', label='Flow: 75', zorder=1)  # 可以通过zorder设置不同曲线的优先级
+    # 记得先画 y1 再画 y2 以此类推
+    plt.scatter([1, 5, 10, 15], [26.44, 25.20, 20.34, 17.63], marker='D', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+    plt.scatter([1, 5, 10, 15], [34.35, 28.02, 25.76, 20.34], marker='D', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+    plt.scatter([1, 5, 10, 15], [30.39, 28.93, 25.65, 22.82], marker='D', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+    plt.scatter([1, 5, 10, 15], [35.71, 34.24, 33.56, 31.75], marker='D', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+    plt.scatter([1, 5, 10, 15], [34.35, 30.85, 26.67, 24.97], marker='D', zorder=2)  # 可以通过zorder设置不同曲线的优先级
+
+
+    plt.title('Urea Secretion Line Chart')
+    plt.xlabel('Day')
+    plt.ylabel('Urea (μg/day/10^6 cells)')
+    plt.legend()
+    plt.xticks(list(range(1, 16, 2)))
+    plt.savefig('pics/chip line chart.svg', dpi=300)  # 用png可以无损压缩 jpg有损压缩 svg效果更好
     plt.show()
 
 
-csv_file = open('liver_data/chip-urea.csv', encoding='utf-8')
+csv_file = open('liver_data/scaffold-urea.csv', encoding='utf-8')
 data = pd.read_csv(csv_file)
 
 # 采用特定 label_name 和 feature_name 时 对应更改名称或退注释即可
 label_name = 'Urea'
-# feature_name = ['Day', 'Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Co-Cell Seeding-2', 'Scaffold', 'Scaffold-1-Con',
-#                 'Scaffold-2-Con', 'Scaffold-3-Con', 'Modification', 'Modi-1-Con', 'Modi-2-Con', 'Pore Size', 'Diameter',
-#                 'Thick', 'Porosity', 'Flow Rate', 'Fabrication', 'Fabr-para1', 'Fabr-para2', 'Fabr-para3']  # scaffold
+feature_name = ['Day', 'Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Co-Cell Seeding-2', 'Scaffold', 'Scaffold-1-Con',
+                'Scaffold-2-Con', 'Scaffold-3-Con', 'Modification', 'Modi-1-Con', 'Modi-2-Con', 'Pore Size', 'Diameter',
+                'Thick', 'Porosity', 'Flow Rate', 'Fabrication', 'Fabr-para1', 'Fabr-para2', 'Fabr-para3']  # scaffold
 # feature_name = ['Day', 'Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Spheroid-Dia', 'Tethered', 'Tethered Film',
 #                 'Modification', 'Flow Rate']  # spheroid
-feature_name = ['Day', 'Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Material', 'Material-1-Con', 'Material-2-Con',
-                'Modification', 'Modi-1-Con', 'Modi-2-Con', 'Self-circulated', 'Multi-organ', 'Medium',
-                'Medium-out', 'Medium-in', 'Serum-out', 'Serum-in', 'Shear Stress', 'Channel Width',
-                'Physical-sti', 'Flow Rate']  # chip
+# feature_name = ['Day', 'Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Material', 'Material-1-Con', 'Material-2-Con',
+#                 'Modification', 'Modi-1-Con', 'Modi-2-Con', 'Self-circulated', 'Multi-organ', 'Medium',
+#                 'Medium-out', 'Medium-in', 'Serum-out', 'Serum-in', 'Shear Stress', 'Channel Width',
+#                 'Physical-sti', 'Flow Rate']  # chip
 # feature_name = ['Day', 'Cell', 'Cell Seeding', 'Coat', 'Co-Cell Seeding']  # 2D
 """
 # copy()方法创建df的深副本df_deep = df.copy([默认]deep=True) 【可以理解为 创建新的DataFrame并赋值 二者不共享内存空间】
@@ -150,12 +174,12 @@ params = {
     'objective': 'reg:gamma',
     'alpha': 0.005,
     'gamma': 0.1,
-    'max_depth': 12,
+    'max_depth': 24,
     # 'min_child_weight': 3,
     # 'subsample': 0.8,
     # 'colsample_bytree': 0.8,
 }
-num_boost_rounds = 2000
+num_boost_rounds = 3000
 xgboost = xgb.train(params=params, dtrain=train_data, num_boost_round=num_boost_rounds)
 
 # """
@@ -166,8 +190,9 @@ xgboost = xgb.train(params=params, dtrain=train_data, num_boost_round=num_boost_
 # plt.tight_layout()
 # # 调整左边距以解决features显示不全的问题
 # plt.gcf().subplots_adjust(left=0.22)
-# plt.savefig('pics/chip-urea.svg', dpi=300)
+# # plt.savefig('pics/scaffold-urea.svg', dpi=300)
 # plt.show()
+
 # """
 # 画出树结构
 # """
