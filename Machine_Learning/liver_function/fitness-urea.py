@@ -104,21 +104,21 @@ def plot():
     plt.show()
 
 
-csv_file = open('liver_data/2D-urea.csv', encoding='utf-8')
+csv_file = open('liver_data/scaffold-urea-60.csv', encoding='utf-8')
 data = pd.read_csv(csv_file)
 
 # 采用特定 label_name 和 feature_name 时 对应更改名称或退注释即可
 label_name = 'Urea'
-# feature_name = ['Day', 'Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Co-Cell Seeding-2', 'Scaffold', 'Scaffold-1-Con',
-#                 'Scaffold-2-Con', 'Scaffold-3-Con', 'Modification', 'Modi-1-Con', 'Modi-2-Con', 'Pore Size', 'Diameter',
-#                 'Thick', 'Porosity', 'Flow Rate', 'Fabrication', 'Fabr-para1', 'Fabr-para2', 'Fabr-para3']  # scaffold
+feature_name = ['Day', 'Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Co-Cell Seeding-2', 'Scaffold', 'Scaffold-1-Con',
+                'Scaffold-2-Con', 'Scaffold-3-Con', 'Modification', 'Modi-1-Con', 'Modi-2-Con', 'Pore Size', 'Diameter',
+                'Thick', 'Porosity', 'Flow Rate', 'Fabrication', 'Fabr-para1', 'Fabr-para2', 'Fabr-para3']  # scaffold
 # feature_name = ['Day', 'Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Spheroid-Dia', 'Tethered', 'Tethered Film',
 #                 'Modification', 'Flow Rate']  # spheroid
 # feature_name = ['Day', 'Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Material', 'Material-1-Con', 'Material-2-Con',
 #                 'Modification', 'Modi-1-Con', 'Modi-2-Con', 'Self-circulated', 'Multi-organ', 'Medium',
 #                 'Medium-out', 'Medium-in', 'Serum-out', 'Serum-in', 'Shear Stress', 'Channel Width',
 #                 'Physical-sti', 'Flow Rate']  # chip
-feature_name = ['Day', 'Cell', 'Cell Seeding', 'Coat', 'Co-Cell Seeding']  # 2D
+# feature_name = ['Day', 'Cell', 'Cell Seeding', 'Coat', 'Co-Cell Seeding']  # 2D
 """
 # copy()方法创建df的深副本df_deep = df.copy([默认]deep=True) 【可以理解为 创建新的DataFrame并赋值 二者不共享内存空间】
 # 即df2重新开辟内存空间存放df_deep的数据 df与df_deep所指向数据的地址不一样而仅对应位置元素一样 故其中一个变量名中的元素发生变化，另一个不会随之发生变化
@@ -173,11 +173,11 @@ params = {
     'eta': 0.1,
     'objective': 'reg:gamma',
     'alpha': 0.005,
-    'gamma': 0.1,
+    'gamma': 0.24,
     'max_depth': 24,
-    # 'min_child_weight': 3,
-    # 'subsample': 0.8,
-    # 'colsample_bytree': 0.8,
+    'min_child_weight': 3,
+    'subsample': 0.8,
+    'colsample_bytree': 0.8,
 }
 num_boost_rounds = 3000
 xgboost = xgb.train(params=params, dtrain=train_data, num_boost_round=num_boost_rounds)
@@ -267,7 +267,7 @@ if r2 > 0.7:
     final.reset_index(drop=True, inplace=True)  # 重排原始+预测序列 得到完整的DataFrame
     final.sort_values(by=['Feature', 'Day'], ascending=True, inplace=True)  # 先按照Feature的类型排序 在Feature内部再按照Day升序排列
     final['Urea'] = final['Urea'].apply(lambda x: round(x, 2))  # lambda可定义函数 此处为对dataframe的某列数值保留两位小数
-    final.to_csv('liver_data_complement/2D-urea-com.csv', index=False)
+    # final.to_csv('liver_data_complement/scaffold-urea-com-60.csv', index=False)
 
     # plot()  # 将原始点和预测点绘制折线图
 

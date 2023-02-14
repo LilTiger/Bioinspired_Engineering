@@ -66,17 +66,17 @@ params = {
     'alpha': 0.005,
     'gamma': 0.6,
     'max_depth': 12,
-    # 'min_child_weight': 12,
+    'min_child_weight': 3,
     # 'subsample': 0.2,
     # 'colsample_bytree': 0.8,
 }
 num_boost_rounds = 2000
 `
-R2 score: 0.75
-MAE: 94.52
-MAPE: 43.93%
-MSE: 20973.53
-RMSE: 144.82
+R2 score: 0.77
+MAE: 91.41
+MAPE: 42.00%
+MSE: 19282.77
+RMSE: 138.86
 #### Chip-Albumin
 `
 params = {

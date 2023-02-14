@@ -103,7 +103,7 @@ def plot():
     plt.show()
 
 
-csv_file = open('liver_data/2D-albumin.csv', encoding='utf-8')
+csv_file = open('liver_data/2D-albumin-60.csv', encoding='utf-8')
 data = pd.read_csv(csv_file)
 
 # 采用特定 label_name 和 feature_name 时 对应更改名称或退注释即可
@@ -150,7 +150,7 @@ for index in range(0, len(y_label)):
     else:
         y_label_pred.drop(index=index, inplace=True)
         x_label_pred.drop(index=index, inplace=True)
-
+# x_label_pred = x_label_pred.append(data.loc[0:3, ['Day', 'Cell', 'Cell Seeding', 'Coat','Co-Cell Seeding']], ignore_index=True)
 # fillna中 pad为利用前面的数据填充 df.mode()/median()/mean()为众数、中位数、平均值填充
 # x_label = x_label.interpolate(method='pad')
 # x_label = x_label.fillna(x_label.median())
@@ -223,16 +223,13 @@ mse = mean_squared_error(y_test, y_test_pred)
 print("MSE: %.2f" % mse)
 print("RMSE: %.2f" % (mse ** (1 / 2.0)))
 # 模型完整存储了训练的参数 保存和读取模型对结果无任何影响
-# 输出模型测试集的实际值和预测值
-# print('The true label of test set is:', np.array(y_test).T)
-# print('The predicted output of test set is:', y_test_pred)
-joblib.dump(xgboost, 'xgb.pkl')  # 保存模型
+# joblib.dump(xgboost, 'xgb.pkl')  # 保存模型
 
 
 # 若输入数据不含预测行 也即不含空值的功能指标行 将以下代码注释即可
 # 以下对测试后的模型进行天数预测
 if r2 > 0.7:
-    xgboost = joblib.load('xgb.pkl')
+    # xgboost = joblib.load('xgb.pkl')
     # 当有新数据需要增量学习时 使用以下指令【注意eta学习率需要酌情变小 类似于微调】
     # model = xgb.train(params=params, dtrain=test_data, num_boost_round=num_boost_rounds, xgb_model=xgboost)
     pred_data = xgb.DMatrix(x_label_pred_norm)
@@ -265,8 +262,8 @@ if r2 > 0.7:
 
     final.reset_index(drop=True, inplace=True)  # 重排原始+预测序列 得到完整的DataFrame
     final.sort_values(by=['Feature', 'Day'], ascending=True, inplace=True)  # 先按照Feature的类型排序 在Feature内部再按照Day升序排列
-    final['Albumin'] = final['Albumin'].apply(lambda x: round(x, 2))  # lambda可定义函数 此处为对dataframe的某列数值保留两位小数
-    final.to_csv('liver_data_complement/2D-albumin-com.csv', index=False)
+    final['Albumin'] = final['Albumin'].apply(lambda x: round(x, 3))  # lambda可定义函数 此处为对dataframe的某列数值保留两位小数
+    final.to_csv('liver_data_complement/2D-albumin-com-60.csv', index=False)
 
     # plot()  # 将原始点和预测点绘制折线图
 
