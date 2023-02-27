@@ -227,13 +227,13 @@ print("RMSE: %.2f" % (mse ** (1 / 2.0)))
 # 输出模型测试集的实际值和预测值
 # print('The true label of test set is:', np.array(y_test).T)
 # print('The predicted output of test set is:', y_test_pred)
-joblib.dump(xgboost, 'xgb.pkl')  # 保存模型
+# joblib.dump(xgboost, 'xgb.pkl')  # 保存模型
 
 
 # 若输入数据不含预测行 也即不含空值的功能指标行 将以下代码注释即可
 # 以下对测试后的模型进行天数预测
 if r2 > 0.7:
-    xgboost = joblib.load('xgb.pkl')
+    # xgboost = joblib.load('xgb.pkl')
     # 当有新数据需要增量学习时 使用以下指令【注意eta学习率需要酌情变小 类似于微调】
     # model = xgb.train(params=params, dtrain=test_data, num_boost_round=num_boost_rounds, xgb_model=xgboost)
     pred_data = xgb.DMatrix(x_label_pred_norm)
