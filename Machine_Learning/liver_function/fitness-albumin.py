@@ -103,21 +103,21 @@ def plot():
     plt.show()
 
 
-csv_file = open('liver_data/2D-albumin-60.csv', encoding='utf-8')
+csv_file = open('liver_data/scaffold-albumin.csv', encoding='utf-8')
 data = pd.read_csv(csv_file)
 
 # 采用特定 label_name 和 feature_name 时 对应更改名称或退注释即可
 label_name = 'Albumin'
-# feature_name = ['Day', 'Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Co-Cell Seeding-2', 'Scaffold', 'Scaffold-1-Con',
-#                 'Scaffold-2-Con', 'Scaffold-3-Con', 'Modification', 'Modi-1-Con', 'Modi-2-Con', 'Pore Size', 'Diameter',
-#                 'Thick', 'Porosity', 'Flow Rate', 'Fabrication', 'Fabr-para1', 'Fabr-para2', 'Fabr-para3']  # scaffold
+feature_name = ['Day', 'Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Co-Cell Seeding-2', 'Scaffold', 'Scaffold-1-Con',
+                'Scaffold-2-Con', 'Scaffold-3-Con', 'Modification', 'Modi-1-Con', 'Modi-2-Con', 'Pore Size', 'Diameter',
+                'Thick', 'Porosity', 'Flow Rate', 'Design', 'Desi-para1', 'Desi-para2', 'Desi-para3']  # scaffold
 # feature_name = ['Day', 'Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Spheroid-Dia', 'Tethered', 'Tethered Film',
 #                 'Modification', 'Flow Rate']  # spheroid
 # feature_name = ['Day', 'Cell', 'Cell Seeding', 'Co-Cell Seeding', 'Material', 'Material-1-Con', 'Material-2-Con',
 #                 'Modification', 'Modi-1-Con', 'Modi-2-Con', 'Self-circulated', 'Multi-organ', 'Medium',
 #                 'Medium-out', 'Medium-in', 'Serum-out', 'Serum-in', 'Shear Stress', 'Channel Width',
 #                 'Physical-sti', 'Flow Rate']  # chip
-feature_name = ['Day', 'Cell', 'Cell Seeding', 'Coat', 'Co-Cell Seeding']  # 2D
+# feature_name = ['Day', 'Cell', 'Cell Seeding', 'Coat', 'Co-Cell Seeding']  # 2D
 """
 # copy()方法创建df的深副本df_deep = df.copy([默认]deep=True) 【可以理解为 创建新的DataFrame并赋值 二者不共享内存空间】
 # 即df2重新开辟内存空间存放df_deep的数据 df与df_deep所指向数据的地址不一样而仅对应位置元素一样 故其中一个变量名中的元素发生变化，另一个不会随之发生变化
@@ -169,10 +169,10 @@ x_train, x_test, y_train, y_test = train_test_split(x_label_norm, y_label, test_
 train_data = xgb.DMatrix(x_train, y_train)
 # 少量数据拟合时若测试集精度不高 尝试更改params的值 比如eta num_boost_rounds等
 params = {
-    'eta': 0.1,
+    'eta': 0.01,
     'objective': 'reg:gamma',
     'alpha': 0.005,
-    'gamma': 0.2,
+    'gamma': 0,
     'max_depth': 12,
     # 'min_child_weight': 6,
     # 'subsample': 0.2,
@@ -181,16 +181,16 @@ params = {
 num_boost_rounds = 1600
 xgboost = xgb.train(params=params, dtrain=train_data, num_boost_round=num_boost_rounds)
 
-# """
-# 以下开始计算贡献度
-# """
-# # 对于分类变量，由于天生能用于分割的点就比较少，很容易被"weight"指标所忽略；故使用gain最可以代表特征的重要性
-# xgb.plot_importance(xgboost, importance_type='gain', xlabel='gain', max_num_features=10, show_values=False)  # 论文中可设置show_values为False
-# plt.tight_layout()
-# # 调整左边距以解决features显示不全的问题
-# plt.gcf().subplots_adjust(left=0.22)
-# # plt.savefig('pics/scaffold-albumin.svg', dpi=300)
-# plt.show()
+"""
+以下开始计算贡献度
+"""
+# 对于分类变量，由于天生能用于分割的点就比较少，很容易被"weight"指标所忽略；故使用gain最可以代表特征的重要性
+xgb.plot_importance(xgboost, importance_type='gain', xlabel='gain', max_num_features=10, show_values=False)  # 论文中可设置show_values为False
+plt.tight_layout()
+# 调整左边距以解决features显示不全的问题
+plt.gcf().subplots_adjust(left=0.22)
+plt.savefig('pics/scaffold-albumin.svg', dpi=300)
+plt.show()
 
 # """
 # 画出树结构

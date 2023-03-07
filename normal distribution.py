@@ -4,9 +4,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # 更改需要验证的数据列名
-data = pd.read_csv(r'Results.csv', names=['Length'])
+data = pd.read_csv(r'2.csv', names=['Length(μm)'])
 data = data.iloc[1:, :]
-data["Length"] = pd.to_numeric(data["Length"], errors='coerce')
+data["Length(μm)"] = pd.to_numeric(data["Length(μm)"], errors='coerce')
 
 fig = plt.figure(figsize = (10,6))
 
@@ -15,4 +15,5 @@ data.hist(bins=50, ax = ax2)
 data.plot(kind ='kde', secondary_y=True, ax = ax2)
 plt.grid()
 
+plt.savefig('2-normal.svg')
 plt.show()
