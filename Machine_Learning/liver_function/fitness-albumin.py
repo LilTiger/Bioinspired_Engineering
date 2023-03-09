@@ -192,11 +192,11 @@ plt.gcf().subplots_adjust(left=0.22)
 plt.savefig('pics/scaffold-albumin.svg', dpi=300)
 plt.show()
 
-# """
-# 画出树结构
-# """
-# tree = xgb.to_graphviz(xgboost, num_trees=2)
-# tree.view("trees/tree")
+"""
+画出树结构
+"""
+tree = xgb.to_graphviz(xgboost, num_trees=9)
+tree.view("tree1")
 
 # 首先对于训练集的k折交叉验证 评估模型的rmse【只需要训练集】
 k_fold = KFold(n_splits=5, shuffle=True, random_state=412)
