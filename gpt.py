@@ -1,7 +1,7 @@
 import openai
 
 # 将此处的`your_api_key`替换为您的OpenAI API密钥
-openai.api_key = "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"  # Google key
+openai.api_key = "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"  # Google key
 # openai.api_key = "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"  # Google key
 
 # 定义要发送给GPT-3.5的消息
@@ -18,7 +18,7 @@ try:
         max_tokens=2000,
         n=1,
         stop=None,
-        temperature=0.7
+        temperature=0
     )
 
     # 输出结果
