@@ -153,3 +153,34 @@ MAE: 54.71
 MAPE: 101.08%
 MSE: 12951.06
 RMSE: 113.80
+
+
+> 其它回归模型对于的性能比较 (scaffold-albumin)
+#### KNN (default parameter)
+R2 score: 0.58
+MAE: 21.74
+MAPE: 1413.69%
+MSE: 1491.60
+RMSE: 38.62
+
+#### Random Forest (n_estimator = 160)
+R2 score: 0.82
+MAE: 13.31
+MAPE: 1920.73%
+MSE: 616.36
+RMSE: 24.83
+
+#### SGD Regressor (default parameter)
+R2 score: 0.16
+MAE: 36.46
+MAPE: 6696.72%
+MSE: 2967.94
+RMSE: 54.48
+
+#### MLP Regressor (solver='sgd)
+R2 score: 0.74
+MAE: 18.75
+MAPE: 1995.08%
+MSE: 923.01
+RMSE: 30.38
+
