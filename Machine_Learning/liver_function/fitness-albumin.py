@@ -68,7 +68,7 @@ def plot_2D():
 
     plt.title('Albumin Secretion Line Chart')
     plt.xlabel('Day')
-    plt.ylabel('Albumin (μg/day/10^6 cells)')
+    plt.ylabel('Albumin (μg/day/10^6 cells)' )
     plt.legend()
     plt.savefig('pics/2d line chart.svg', dpi=300)  # 用png可以无损压缩 jpg有损压缩 svg效果更好
     plt.show()
